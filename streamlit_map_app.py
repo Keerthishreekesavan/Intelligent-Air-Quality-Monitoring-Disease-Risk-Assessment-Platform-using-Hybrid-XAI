@@ -464,7 +464,7 @@ if fetch_btn:
     st.session_state.fetch_lat = lat
     st.session_state.fetch_lon = lon
     st.rerun()
-    
+
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
 if st.session_state.run_prediction and st.session_state.fetched_features:
@@ -534,27 +534,33 @@ else:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
-# ═══════════════════════════════════
-# FOOTER
-# ═══════════════════════════════════
-st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-fc1, fc2 = st.columns([4, 1])
-with fc1:
-    fl1, fl2 = st.columns([1, 5])
-    with fl1:
-        st.image("tulip.jpg", width=75)
-    with fl2:
-        st.markdown("""
-        <div style='padding-top:4px;'>
-            <div style='font-size:19px;font-weight:700;color:#0f172a;'>Created by Keerthishree Kesavan</div>
-            <div style='font-size:13px;color:#64748b;margin-top:2px;'>AI/ML Focused Full Stack Developer</div>
-        </div>""", unsafe_allow_html=True)
-with fc2:
-    st.link_button("GitHub Profile", "https://github.com/Keerthishreekesavan")
-
 st.markdown("""
-<div class='footer-sub'>
-    Developed by Air Quality AI &nbsp;·&nbsp; Powered by OpenWeather &amp; Explainable AI
-</div>""", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
+<div style='
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 18px;
+    margin-top: 16px;
+    margin-bottom: 20px;
+'>
+    <div style='display: flex; align-items: center; gap: 12px;'>
+        <img src="https://raw.githubusercontent.com/Keerthishreekesavan/Keerthishreekesavan/main/tulip.jpg"
+             style='width:36px;height:36px;border-radius:50%;object-fit:cover;' />
+        <div>
+            <div style='font-size:14px;font-weight:700;color:#0f172a;'>Keerthishree Kesavan</div>
+            <div style='font-size:12px;color:#64748b;'>AI/ML Focused Full Stack Developer</div>
+        </div>
+    </div>
+    <div style='font-size:12px;color:#94a3b8;'>Powered by OpenWeather &amp; Explainable AI</div>
+    <a href="https://github.com/Keerthishreekesavan" target="_blank" style='
+        display: flex; align-items: center; gap: 6px;
+        background: #fff; border: 1px solid #e2e8f0;
+        border-radius: 8px; padding: 6px 14px;
+        font-size: 13px; font-weight: 600; color: #0f172a;
+        text-decoration: none;
+    '>🐙 GitHub Profile</a>
+</div>
+""", unsafe_allow_html=True)
