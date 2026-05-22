@@ -600,10 +600,10 @@ for i, key in enumerate(feature_keys):
             key,
             value=float(features[key])
         )
-
 # =========================================================
 # DISEASE RISK PREDICTIONS
 # =========================================================
+
 # =========================================================
 # DISEASE DATABASE
 # =========================================================
@@ -611,25 +611,15 @@ for i, key in enumerate(feature_keys):
 disease_labels = {
 
     "Arrhythmia": ['CO', 'NO2'],
-
     "Asthma": ['PM2.5', 'PM10', 'NO2'],
-
     "COPD": ['PM2.5', 'PM10', 'SO2'],
-
     "Hypertension": ['NO2', 'SO2', 'CO'],
-
     "Heart Attacks": ['PM2.5', 'PM10', 'CO'],
-
     "Pneumonia and Bronchitis": ['PM2.5', 'PM10', 'SO2', 'CO'],
-
     "Eye and Skin Irritation": ['SO2', 'O3'],
-
     "Low Birth Weight": ['PM2.5', 'PM10', 'NO2'],
-
     "Preterm Births": ['PM2.5', 'PM10', 'NO2'],
-
     "Cognitive Impairment in Children": ['PM2.5', 'NO2'],
-
     "Reduced Lung Function in Children": ['PM2.5', 'NO2', 'O3']
 }
 
@@ -714,75 +704,81 @@ disease_precautions = {
 }
 
 # =========================================================
-# DISEASE SECTION TITLE
+# SECTION TITLE
 # =========================================================
 
-st.markdown("""
-<div class="section-title" style="margin-top:40px;">
-🩺 Health Risk Analysis
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="section-title" style="margin-top:40px;">
+        🩺 Health Risk Analysis
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
-# DISEASE CARD CSS
+# CSS
 # =========================================================
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-.disease-card{
-    background:white;
-    border-radius:22px;
-    padding:24px;
-    margin-bottom:22px;
-    border:1px solid #e2e8f0;
-    box-shadow:0 8px 24px rgba(15,23,42,0.06);
-}
+    .disease-card{
+        background:white;
+        border-radius:22px;
+        padding:24px;
+        margin-bottom:22px;
+        border:1px solid #e2e8f0;
+        box-shadow:0 8px 24px rgba(15,23,42,0.06);
+    }
 
-.disease-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
-}
+    .disease-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:18px;
+    }
 
-.disease-name{
-    font-size:24px;
-    font-weight:800;
-    color:#0f172a;
-}
+    .disease-name{
+        font-size:24px;
+        font-weight:800;
+        color:#0f172a;
+    }
 
-.risk-high{
-    background:#fee2e2;
-    color:#dc2626;
-    padding:8px 16px;
-    border-radius:999px;
-    font-weight:700;
-}
+    .risk-high{
+        background:#fee2e2;
+        color:#dc2626;
+        padding:8px 16px;
+        border-radius:999px;
+        font-weight:700;
+    }
 
-.risk-low{
-    background:#dcfce7;
-    color:#16a34a;
-    padding:8px 16px;
-    border-radius:999px;
-    font-weight:700;
-}
+    .risk-low{
+        background:#dcfce7;
+        color:#16a34a;
+        padding:8px 16px;
+        border-radius:999px;
+        font-weight:700;
+    }
 
-.info-title{
-    font-size:16px;
-    font-weight:700;
-    color:#0f172a;
-    margin-top:12px;
-}
+    .info-title{
+        font-size:16px;
+        font-weight:700;
+        color:#0f172a;
+        margin-top:12px;
+    }
 
-.info-text{
-    color:#475569;
-    line-height:1.7;
-    margin-top:6px;
-}
+    .info-text{
+        color:#475569;
+        line-height:1.7;
+        margin-top:6px;
+    }
 
-</style>
-""", unsafe_allow_html=True)
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
 # RENDER DISEASES
@@ -794,10 +790,10 @@ for disease, feats in disease_labels.items():
 
         disease_input = []
 
-        for f in feats:
+        for feature_name in feats:
 
-            if f in features:
-                disease_input.append(features[f])
+            if feature_name in features:
+                disease_input.append(features[feature_name])
 
         if len(disease_input) == 0:
             continue
@@ -807,107 +803,91 @@ for disease, feats in disease_labels.items():
             disease
         )
 
-        if not result:
+        if result is None:
             continue
 
-        if "prediction" not in result:
-            continue
+        prediction = result.get("prediction", 0)
 
         risk = (
             "HIGH RISK"
-            if result["prediction"] == 1
+            if prediction == 1
             else "LOW RISK"
         )
 
         risk_class = (
             "risk-high"
-            if risk == "HIGH RISK"
+            if prediction == 1
             else "risk-low"
         )
 
         risk_icon = (
             "⚠️"
-            if risk == "HIGH RISK"
+            if prediction == 1
             else "✅"
         )
 
-        st.markdown(f"""
-        <div class="disease-card">
+        st.markdown(
+            f"""
+            <div class="disease-card">
 
-            <div class="disease-header">
+                <div class="disease-header">
 
-                <div class="disease-name">
-                    {disease}
+                    <div class="disease-name">
+                        {disease}
+                    </div>
+
+                    <div class="{risk_class}">
+                        {risk_icon} {risk}
+                    </div>
+
                 </div>
 
-                <div class="{risk_class}">
-                    {risk_icon} {risk}
+                <div class="info-title">
+                    Health Effects
+                </div>
+
+                <div class="info-text">
+                    {disease_effects.get(disease, "N/A")}
+                </div>
+
+                <div class="info-title">
+                    Precautions
+                </div>
+
+                <div class="info-text">
+                    {disease_precautions.get(disease, "N/A")}
                 </div>
 
             </div>
-
-            <div class="info-title">
-                Health Effects
-            </div>
-
-            <div class="info-text">
-                {disease_effects.get(disease, "N/A")}
-            </div>
-
-            <div class="info-title">
-                Precautions
-            </div>
-
-            <div class="info-text">
-                {disease_precautions.get(disease, "N/A")}
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )
 
         with st.expander(f"🔍 Explainable AI Details — {disease}"):
 
-            st.write(
-                "Prediction Confidence:",
-                max(result["probability"])
-            )
+            probability = result.get("probability")
+
+            if probability is not None:
+                st.write(
+                    "Prediction Confidence:",
+                    max(probability)
+                )
 
             st.write(
                 "Model Accuracy:",
-                result["accuracy"]
+                result.get("accuracy", "N/A")
             )
 
             st.write(
                 "LIME Explanation:",
-                result.get("lime_explanation") or "N/A"
+                result.get("lime_explanation", "N/A")
             )
 
             st.write(
                 "SHAP Explanation:",
-                result.get("shap_explanation") or "N/A"
+                result.get("shap_explanation", "N/A")
             )
 
-    except Exception:
-        continue
-# =========================================================
-# FOOTER
-# =========================================================
+    except Exception as e:
 
-st.markdown("<br><hr><br>", unsafe_allow_html=True)
-
-footer_left, footer_right = st.columns([5, 1])
-
-with footer_left:
-
-    st.markdown("""
-    ### Created by Keerthishree Kesavan
-
-    AI/ML Focused Full Stack Developer
-    """)
-
-with footer_right:
-
-    st.link_button(
-        "GitHub",
-        "https://github.com/Keerthishreekesavan"
-    )
+        st.error(f"Error rendering {disease}: {e}")
