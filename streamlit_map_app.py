@@ -228,6 +228,14 @@ div[data-testid="stHorizontalBlock"] {
     gap: 1.5rem;
     align-items: stretch;
 }
+/* ── Fix button column widths ── */
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
+    min-width: 0;
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] .stButton > button {
+    width: 100% !important;
+    white-space: nowrap;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -491,14 +499,20 @@ with right_col:
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 st.markdown("<div class='results-wrap'><div class='results-head'>📊 Prediction results</div><div class='results-body'>", unsafe_allow_html=True)
 
-run_prediction = fetch_btn or (map_data and map_data.get("last_clicked"))
+if fetch_btn or (map_data and map_data.get("last_clicked")):
+    st.session_state.run_prediction = True
+
+run_prediction = st.session_state.get("run_prediction", False)
 
 if run_prediction:
-    with st.spinner("Fetching live data and running predictions…"):
-        air_data, weather_data = fetch_openweather_data(lat, lon)
-        features = extract_features(air_data, weather_data)
-        st.session_state.fetched_features = features
+    if fetch_btn or (map_data and map_data.get("last_clicked")):
+        with st.spinner("Fetching live data and running predictions…"):
+            air_data, weather_data = fetch_openweather_data(lat, lon)
+            features = extract_features(air_data, weather_data)
+            st.session_state.fetched_features = features
 
+    features = st.session_state.fetched_features
+    
     st.markdown("#### Editable features")
     ec1, ec2 = st.columns(2)
     for i, k in enumerate(features.keys()):
