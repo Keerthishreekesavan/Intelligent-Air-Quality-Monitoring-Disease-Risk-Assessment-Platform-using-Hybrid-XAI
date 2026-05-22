@@ -35,11 +35,11 @@ if "marker" not in st.session_state:
 if "city_name" not in st.session_state:
     st.session_state.city_name = "Chennai"
 
-if "search_status" not in st.session_state:
-    st.session_state.search_status = None
+if "search_message" not in st.session_state:
+    st.session_state.search_message = ""
 
 # =========================================================
-# STYLING
+# CUSTOM CSS
 # =========================================================
 
 st.markdown("""
@@ -51,17 +51,12 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-body {
+.main {
     background: #f4f7fb;
 }
 
-.main {
-    background-color: #f4f7fb;
-}
-
 .block-container {
-    padding-top: 1.2rem;
-    padding-bottom: 2rem;
+    padding-top: 1rem;
     max-width: 1600px;
 }
 
@@ -73,45 +68,21 @@ section[data-testid="stSidebar"] {
     width: 320px !important;
 }
 
-section[data-testid="stSidebar"] * {
-    color: #111827 !important;
-}
-
 .sidebar-title {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 800;
     color: #2563eb;
     margin-bottom: 8px;
 }
 
 .sidebar-sub {
-    color: #6b7280;
+    color: #64748b;
     font-size: 15px;
-    margin-bottom: 35px;
     line-height: 1.5;
+    margin-bottom: 35px;
 }
 
-.search-success {
-    background: #dcfce7;
-    color: #166534;
-    padding: 14px;
-    border-radius: 14px;
-    font-weight: 600;
-    margin-top: 18px;
-    border: 1px solid #bbf7d0;
-}
-
-.search-fail {
-    background: #fee2e2;
-    color: #b91c1c;
-    padding: 14px;
-    border-radius: 14px;
-    font-weight: 600;
-    margin-top: 18px;
-    border: 1px solid #fecaca;
-}
-
-/* ================= HEADERS ================= */
+/* ================= HEADINGS ================= */
 
 .main-title {
     font-size: 64px;
@@ -132,64 +103,10 @@ section[data-testid="stSidebar"] * {
 }
 
 .section-title {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 800;
     color: #0f172a;
-    margin-bottom: 22px;
-}
-
-/* ================= CARDS ================= */
-
-.metric-card {
-    background: rgba(255,255,255,0.95);
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 30px rgba(15,23,42,0.05);
-    backdrop-filter: blur(8px);
-    transition: 0.3s ease;
-    overflow: hidden;
-}
-
-.metric-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 40px rgba(15,23,42,0.08);
-}
-
-.metric-title {
-    font-size: 15px;
-    color: #64748b;
-    margin-bottom: 10px;
-    font-weight: 600;
-}
-
-.metric-value {
-    font-size: 34px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.info-card {
-    background: white;
-    border-radius: 22px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 24px rgba(15,23,42,0.05);
-}
-
-/* ================= MAP ================= */
-
-.map-wrapper {
-    background: white;
-    border-radius: 26px;
-    padding: 18px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 12px 35px rgba(15,23,42,0.06);
-    overflow: hidden;
-}
-
-[data-testid="stVerticalBlock"] iframe {
-    border-radius: 20px !important;
+    margin-bottom: 18px;
 }
 
 /* ================= BUTTON ================= */
@@ -199,7 +116,7 @@ section[data-testid="stSidebar"] * {
     height: 52px;
     border-radius: 14px;
     border: none;
-    background: linear-gradient(90deg, #2563eb, #38bdf8);
+    background: linear-gradient(90deg,#2563eb,#38bdf8);
     color: white;
     font-weight: 700;
     font-size: 16px;
@@ -220,35 +137,42 @@ section[data-testid="stSidebar"] * {
     font-size: 16px !important;
 }
 
-/* ================= RISK TAGS ================= */
+/* ================= CARD ================= */
 
-.risk-high {
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 10px 16px;
-    border-radius: 999px;
-    font-weight: 700;
+.custom-card {
+    background: white;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+    margin-bottom: 18px;
 }
 
-.risk-low {
-    background: #dcfce7;
-    color: #16a34a;
-    padding: 10px 16px;
-    border-radius: 999px;
-    font-weight: 700;
+/* ================= METRICS ================= */
+
+[data-testid="metric-container"] {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(15,23,42,0.04);
+}
+
+/* ================= MAP ================= */
+
+.st-emotion-cache-1kyxreq {
+    justify-content: center;
+}
+
+iframe {
+    border-radius: 20px !important;
 }
 
 /* ================= EXPANDER ================= */
 
 .streamlit-expanderHeader {
-    font-weight: 700;
     font-size: 16px;
-}
-
-/* ================= HIDE RAW HTML CODE ================= */
-
-code {
-    white-space: pre-wrap !important;
+    font-weight: 700;
 }
 
 </style>
@@ -313,7 +237,7 @@ def aqi_category(aqi):
         return "Very Poor"
 
 # =========================================================
-# FETCH WEATHER DATA
+# FETCH OPENWEATHER DATA
 # =========================================================
 
 def fetch_openweather_data(lat, lon):
@@ -387,14 +311,14 @@ if search_btn:
         st.session_state.marker = (lat, lon)
         st.session_state.city_name = city
 
-        st.session_state.search_status = (
+        st.session_state.search_message = (
             f"✅ Successfully fetched {city}, {country}"
         )
 
     else:
 
-        st.session_state.search_status = (
-            "❌ Location not found. Please try another city."
+        st.session_state.search_message = (
+            "❌ Location not found."
         )
 
 # =========================================================
@@ -403,67 +327,43 @@ if search_btn:
 
 with st.sidebar:
 
-    if st.session_state.search_status:
+    if st.session_state.search_message:
 
-        if "Successfully" in st.session_state.search_status:
-
-            st.markdown(
-                f"""
-                <div class="search-success">
-                    {st.session_state.search_status}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                f"""
-                <div class="search-fail">
-                    {st.session_state.search_status}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        st.success(st.session_state.search_message)
 
 # =========================================================
 # MAP SECTION
 # =========================================================
 
-st.markdown(
-    """
-    <div class='section-title'>
-        🗺️ Interactive Pollution Map
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown('<div class="map-wrapper">', unsafe_allow_html=True)
+st.markdown("""
+<div class="section-title">
+🗺️ Interactive Pollution Map
+</div>
+""", unsafe_allow_html=True)
 
 m = folium.Map(
     location=st.session_state.map_center,
     zoom_start=5,
-    tiles="CartoDB positron",
+
+    # THIS RESTORES GREEN MAP
+    tiles="OpenStreetMap",
+
     control_scale=True
 )
 
 folium.Marker(
     location=st.session_state.marker,
     popup=st.session_state.city_name,
-    icon=folium.Icon(color="red", icon="info-sign")
+    icon=folium.Icon(color="red")
 ).add_to(m)
 
 map_data = st_folium(
     m,
-    width=None,
     height=620,
-    returned_objects=["last_clicked"],
-    use_container_width=True
+    width=None,
+    use_container_width=True,
+    returned_objects=["last_clicked"]
 )
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 if map_data and map_data["last_clicked"]:
 
@@ -494,7 +394,7 @@ aqi_input = [
 aqi_result = predict_aqi(aqi_input)
 
 # =========================================================
-# AQI + CHART SECTION
+# AQI + POLLUTION CHART
 # =========================================================
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -502,15 +402,16 @@ st.markdown("<br>", unsafe_allow_html=True)
 left_col, right_col = st.columns([1, 1])
 
 # =========================================================
-# AQI GAUGE
+# AQI SECTION
 # =========================================================
 
 with left_col:
 
-    st.markdown(
-        "<div class='section-title'>📊 AQI Overview</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div class="section-title">
+    📊 AQI Overview
+    </div>
+    """, unsafe_allow_html=True)
 
     if aqi_result:
 
@@ -536,29 +437,19 @@ with left_col:
         ))
 
         fig.update_layout(
-            height=340,
-            margin=dict(l=20, r=20, t=30, b=20)
+            height=350,
+            margin=dict(l=20, r=20, t=40, b=20)
         )
 
         st.plotly_chart(fig, use_container_width=True)
 
-        st.markdown(f"""
-        <div class="metric-card">
+        st.info(
+            f"""
+AQI STATUS: {category}
 
-            <div class="metric-title">
-                AQI STATUS
-            </div>
-
-            <div class="metric-value">
-                {category}
-            </div>
-
-            <div style="margin-top:12px;color:#64748b;font-size:16px;">
-                Current AQI Value: <b>{aqi_value:.2f}</b>
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
+Current AQI Value: {aqi_value:.2f}
+"""
+        )
 
 # =========================================================
 # POLLUTANT CHART
@@ -566,10 +457,11 @@ with left_col:
 
 with right_col:
 
-    st.markdown(
-        "<div class='section-title'>📈 Pollutant Analysis</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div class="section-title">
+    📈 Pollutant Analysis
+    </div>
+    """, unsafe_allow_html=True)
 
     pollutant_df = pd.DataFrame({
         "Pollutant": ["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"],
@@ -590,22 +482,22 @@ with right_col:
     fig2.update_layout(
         height=520,
         template="plotly_white",
-        showlegend=False,
-        margin=dict(l=10, r=10, t=40, b=10)
+        showlegend=False
     )
 
     st.plotly_chart(fig2, use_container_width=True)
 
 # =========================================================
-# WEATHER METRICS
+# ENVIRONMENTAL METRICS
 # =========================================================
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-st.markdown(
-    "<div class='section-title'>🌦️ Environmental Conditions</div>",
-    unsafe_allow_html=True
-)
+st.markdown("""
+<div class="section-title">
+🌦️ Environmental Conditions
+</div>
+""", unsafe_allow_html=True)
 
 c1, c2, c3, c4 = st.columns(4)
 
@@ -620,28 +512,22 @@ for col, item in zip([c1, c2, c3, c4], cards):
 
     with col:
 
-        st.markdown(f"""
-        <div class="metric-card">
-
-            <div class="metric-title">
-                {item[0]}
-            </div>
-
-            <div class="metric-value" style="font-size:30px;">
-                {item[1]}
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric(
+            label=item[0],
+            value=item[1]
+        )
 
 # =========================================================
 # EDITABLE FEATURES
 # =========================================================
 
-st.markdown(
-    "<div class='section-title'>⚙️ Editable Environmental Features</div>",
-    unsafe_allow_html=True
-)
+st.markdown("<br>", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="section-title">
+⚙️ Editable Environmental Features
+</div>
+""", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
 
@@ -650,13 +536,22 @@ feature_keys = list(features.keys())
 for i, key in enumerate(feature_keys):
 
     if i % 3 == 0:
-        features[key] = col1.number_input(key, value=float(features[key]))
+        features[key] = col1.number_input(
+            key,
+            value=float(features[key])
+        )
 
     elif i % 3 == 1:
-        features[key] = col2.number_input(key, value=float(features[key]))
+        features[key] = col2.number_input(
+            key,
+            value=float(features[key])
+        )
 
     else:
-        features[key] = col3.number_input(key, value=float(features[key]))
+        features[key] = col3.number_input(
+            key,
+            value=float(features[key])
+        )
 
 # =========================================================
 # DISEASE PREDICTIONS
@@ -671,10 +566,13 @@ disease_labels = {
     'Hypertension': ['NO2', 'SO2', 'CO'],
 }
 
-st.markdown(
-    "<div class='section-title'>🩺 Disease Risk Predictions</div>",
-    unsafe_allow_html=True
-)
+st.markdown("<br>", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="section-title">
+🩺 Disease Risk Predictions
+</div>
+""", unsafe_allow_html=True)
 
 for disease, feats in disease_labels.items():
 
@@ -693,46 +591,25 @@ for disease, feats in disease_labels.items():
             else "LOW RISK"
         )
 
-        risk_class = (
-            "risk-high"
-            if risk == "HIGH RISK"
-            else "risk-low"
-        )
+        st.markdown('<div class="custom-card">', unsafe_allow_html=True)
 
-        st.markdown(f"""
-        <div class="metric-card">
+        colA, colB = st.columns([5, 1])
 
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                margin-bottom:15px;
-            ">
+        with colA:
 
-                <div style="
-                    font-size:26px;
-                    font-weight:800;
-                    color:#0f172a;
-                ">
-                    {disease}
-                </div>
+            st.subheader(disease)
 
-                <div class="{risk_class}">
-                    {risk}
-                </div>
+            st.caption(
+                "AI-driven respiratory health risk analysis"
+            )
 
-            </div>
+        with colB:
 
-            <div style="
-                color:#64748b;
-                font-size:15px;
-                margin-top:5px;
-            ">
-                AI-driven respiratory health risk analysis
-            </div>
+            if risk == "HIGH RISK":
+                st.error(risk)
 
-        </div>
-        """, unsafe_allow_html=True)
+            else:
+                st.success(risk)
 
         with st.expander("🔍 Explainable AI Details"):
 
@@ -756,27 +633,25 @@ for disease, feats in disease_labels.items():
                 result.get("shap_explanation")
             )
 
+        st.markdown("</div>", unsafe_allow_html=True)
+
 # =========================================================
 # FOOTER
 # =========================================================
 
 st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
-f1, f2 = st.columns([5, 1])
+footer_left, footer_right = st.columns([5, 1])
 
-with f1:
+with footer_left:
 
     st.markdown("""
-    <div style="font-size:30px;font-weight:800;color:#0f172a;">
-        Created by Keerthishree Kesavan
-    </div>
+    ### Created by Keerthishree Kesavan
 
-    <div style="color:#64748b;font-size:17px;margin-top:4px;">
-        AI/ML Focused Full Stack Developer
-    </div>
-    """, unsafe_allow_html=True)
+    AI/ML Focused Full Stack Developer
+    """)
 
-with f2:
+with footer_right:
 
     st.link_button(
         "GitHub",
