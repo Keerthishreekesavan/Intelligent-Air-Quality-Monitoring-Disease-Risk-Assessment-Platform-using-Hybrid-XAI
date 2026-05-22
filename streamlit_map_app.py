@@ -4,99 +4,113 @@ from streamlit_folium import st_folium
 import requests
 from models import predict_disease_with_explanation, predict_aqi
 
-# ── CONFIG ────────────────────────────────────────────────────────────────────
 OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
 DEFAULT_LOCATION = (13.0827, 80.2707)
 
-st.set_page_config(
-    page_title="Air Quality & Disease Risk Map",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
+st.set_page_config(page_title="Air Quality & Disease Risk Map", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
 
-html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"] {
     font-family: 'DM Sans', sans-serif !important;
-    background: #f0f4f8 !important;
-    margin: 0; padding: 0;
+    background: #f4f6f9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 [data-testid="stHeader"]  { display: none !important; }
 [data-testid="stSidebar"] { display: none !important; }
 [data-testid="stBottom"]  { display: none !important; }
-.block-container { padding: 0 !important; max-width: 100vw !important; }
+.block-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
 
-/* ── top nav ── */
+/* ── NAV ── */
 .topnav {
     background: #1a3a5c;
-    padding: 0 28px;
-    height: 52px;
+    padding: 0 40px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
-.topnav-brand { display: flex; align-items: center; gap: 10px; }
-.topnav-brand-text { font-size: 16px; font-weight: 600; color: #fff; }
+.topnav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.topnav-brand-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+}
 .topnav-pills { display: flex; gap: 8px; }
 .topnav-pill {
-    display: flex; align-items: center; gap: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 20px;
-    padding: 5px 14px;
-    font-size: 12px;
+    padding: 6px 16px;
+    font-size: 13px;
     color: #cbd5e1;
-    font-family: 'DM Sans', sans-serif;
 }
 
-/* ── main layout ── */
-.main-layout {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 0;
-    height: calc(100vh - 52px);
-    overflow: hidden;
+/* ── PAGE WRAPPER ── */
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
 }
 
-/* ── left column ── */
-.left-col {
+/* ── SECTION BLOCK ── */
+.section {
     background: #fff;
-    border-right: 1px solid #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 20px 18px;
-    gap: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
 }
-.loc-label {
-    font-size: 10px;
-    font-weight: 600;
+.section-heading {
+    font-size: 11px;
+    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #94a3b8;
-    margin-bottom: 6px;
+    margin-bottom: 16px;
 }
 
-/* streamlit input/button overrides */
+/* ── SEARCH ROW ── */
 [data-testid="stTextInput"] input {
     border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
     color: #1e293b !important;
     background: #f8fafc !important;
-    padding: 8px 12px !important;
+    padding: 10px 16px !important;
+    height: 46px !important;
 }
 [data-testid="stTextInput"] input:focus {
     border-color: #1a3a5c !important;
     box-shadow: 0 0 0 3px rgba(26,58,92,0.08) !important;
+    outline: none !important;
 }
 [data-testid="stTextInput"] label { display: none !important; }
 
 div[data-testid="stButton"] > button {
-    width: 100% !important;
     background: #1a3a5c !important;
     color: #fff !important;
     border: none !important;
@@ -104,185 +118,187 @@ div[data-testid="stButton"] > button {
     font-family: 'DM Sans', sans-serif !important;
     font-weight: 600 !important;
     font-size: 14px !important;
-    padding: 10px 0 !important;
+    padding: 10px 28px !important;
+    height: 46px !important;
     letter-spacing: 0.01em !important;
-    transition: background 0.2s !important;
-    margin-top: 2px !important;
+    transition: background 0.18s !important;
+    white-space: nowrap !important;
+    width: 100% !important;
 }
 div[data-testid="stButton"] > button:hover { background: #254e7a !important; }
 
-/* ── metric mini cards ── */
-.mini-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 4px;
+/* ── MAP ── */
+.map-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0;
 }
-.mini-card {
+/* hide leaflet attribution */
+.leaflet-control-attribution { display: none !important; }
+
+/* ── METRIC GRID ── */
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+.metric-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 14px 18px;
 }
-.mini-card-label {
-    font-size: 10px;
+.metric-label {
+    font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    margin-bottom: 3px;
+    color: #94a3b8;
+    margin-bottom: 5px;
 }
-.mini-card-val {
-    font-size: 16px;
-    font-weight: 600;
+.metric-val {
+    font-size: 20px;
+    font-weight: 700;
     color: #1e293b;
 }
 
-/* ── right column ── */
-.right-col {
-    background: #f0f4f8;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* ── steps bar ── */
+/* ── STEPS BAR ── */
 .steps-bar {
-    background: #fff;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 10px 22px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
+    padding: 14px 0 4px;
 }
 .step-item {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     font-size: 13px;
     color: #64748b;
+    font-weight: 500;
 }
 .step-num {
-    width: 20px; height: 20px;
+    width: 22px; height: 22px;
     border-radius: 50%;
     background: #1a3a5c;
     color: #fff;
     font-size: 11px;
     font-weight: 700;
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
 
-/* ── pollutant bar row ── */
-.poll-bar-row {
-    background: #fff;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 10px 22px;
+/* ── POLLUTANT ROW ── */
+.poll-row-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 12px;
+    margin-top: 14px;
 }
-.poll-bar-card {
+.poll-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 8px 12px;
+    border-radius: 10px;
+    padding: 14px 18px;
     text-align: center;
 }
-.poll-bar-name { font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.07em; }
-.poll-bar-val  { font-size: 15px; font-weight: 600; color: #1e293b; margin-top: 2px; }
-
-/* ── results area ── */
-.results-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 18px 22px;
+.poll-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 5px;
 }
-.results-area::-webkit-scrollbar { width: 4px; }
-.results-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+.poll-card-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+}
 
-/* ── aqi card ── */
-.aqi-card {
-    background: #fff;
+/* ── AQI RESULT ── */
+.aqi-result-card {
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px 20px;
+    border-radius: 10px;
+    padding: 20px 24px;
     margin-bottom: 14px;
+}
+.aqi-result-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+.aqi-result-num {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.aqi-result-cat {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ── DISEASE ROWS ── */
+.disease-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 6px 0 12px;
+}
+.disease-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-.aqi-card-left {}
-.aqi-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
-.aqi-card-num   { font-size: 30px; font-weight: 700; line-height: 1; }
-.aqi-card-cat   { font-size: 13px; font-weight: 500; margin-top: 3px; }
-
-/* ── section title ── */
-.section-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: #475569;
-    margin-bottom: 10px;
-    margin-top: 4px;
-}
-
-/* ── disease row ── */
-.disease-list {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-}
-.disease-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 14px 18px;
+    padding: 16px 0;
     border-bottom: 1px solid #f1f5f9;
-    cursor: pointer;
-    transition: background 0.15s;
 }
-.disease-row:last-child { border-bottom: none; }
-.disease-row:hover { background: #f8fafc; }
-.disease-row-left {}
-.disease-name { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }
-.disease-effect { font-size: 12px; color: #64748b; }
+.disease-item:last-child { border-bottom: none; }
+.disease-name  { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
+.disease-blurb { font-size: 13px; color: #64748b; }
 .badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
+    gap: 5px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 4px 10px;
+    padding: 5px 13px;
     border-radius: 20px;
     white-space: nowrap;
     flex-shrink: 0;
-    margin-left: 12px;
-    margin-top: 2px;
+    margin-left: 16px;
 }
 .badge-high { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
 .badge-low  { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
 
-/* ── expander overrides ── */
+/* ── EXPANDERS ── */
 [data-testid="stExpander"] {
     background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 10px !important;
-    margin: 4px 0 0 0 !important;
+    margin: 0 0 8px !important;
 }
 [data-testid="stExpander"] summary {
     font-family: 'DM Sans', sans-serif !important;
     font-size: 13px !important;
     color: #475569 !important;
     font-weight: 500 !important;
+    padding: 12px 16px !important;
 }
 
 /* number inputs */
 [data-testid="stNumberInput"] input {
     background: #f8fafc !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 7px !important;
+    border-radius: 8px !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 13px !important;
     color: #1e293b !important;
@@ -293,22 +309,33 @@ div[data-testid="stButton"] > button:hover { background: #254e7a !important; }
     font-family: 'DM Sans', sans-serif !important;
 }
 
-/* ── footer ── */
-.footer-bar {
-    background: #fff;
-    border-top: 1px solid #e2e8f0;
-    padding: 12px 28px;
+/* columns gap fix */
+[data-testid="column"] { padding: 0 6px !important; }
+
+/* ── FOOTER ── */
+.footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-top: 1px solid #e2e8f0;
 }
-.footer-creator { display: flex; align-items: center; gap: 10px; }
-.footer-name { font-size: 14px; font-weight: 600; color: #1e293b; }
-.footer-role { font-size: 12px; color: #94a3b8; margin-top: 1px; }
-.footer-center { font-size: 12px; color: #94a3b8; }
-
-[data-testid="stSpinner"] { color: #1a3a5c !important; }
-[data-testid="column"] { padding: 0 4px !important; }
+.footer-creator { display: flex; align-items: center; gap: 12px; }
+.footer-name    { font-size: 15px; font-weight: 600; color: #1e293b; }
+.footer-role    { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.footer-center  { font-size: 12px; color: #94a3b8; }
+.footer-btn {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a3a5c;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 18px;
+    background: #fff;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -356,7 +383,7 @@ disease_effects = {
 disease_precautions = {
     'Asthma':                              "Avoid outdoor activity on high-pollution days. Use air purifiers and follow your asthma action plan.",
     'COPD':                                "Stop smoking, avoid polluted areas, keep vaccinations up to date.",
-    'Lung Cancer':                         "Avoid smoking and secondhand smoke. Minimise pollutant exposure and get regular checkups.",
+    'Lung Cancer':                         "Avoid smoking and secondhand smoke. Minimise pollutant exposure, get regular checkups.",
     'Pneumonia & Bronchitis':              "Practice good hygiene, avoid sick contacts, get vaccinated.",
     'Reduced Lung Function in Children':   "Limit outdoor activity on bad air days. Use indoor HEPA filters.",
     'Heart Attacks':                       "Heart-healthy diet, regular exercise, monitor blood pressure.",
@@ -415,7 +442,7 @@ for k, v in [('map_center', DEFAULT_LOCATION), ('marker', DEFAULT_LOCATION),
 st.markdown("""
 <div class="topnav">
   <div class="topnav-brand">
-    <span style="font-size:22px;">🌏</span>
+    <span style="font-size:24px;">🌏</span>
     <span class="topnav-brand-text">Air Quality &amp; Disease Risk Map</span>
   </div>
   <div class="topnav-pills">
@@ -423,249 +450,233 @@ st.markdown("""
     <div class="topnav-pill">⚡ XAI Powered</div>
   </div>
 </div>
+<div class="page">
 """, unsafe_allow_html=True)
 
-# ── TWO COLUMNS ───────────────────────────────────────────────────────────────
-left_col, right_col = st.columns([32, 68], gap="small")
+# ══════════════════════════════
+# SECTION 1 — LOCATION
+# ══════════════════════════════
+st.markdown('<div class="section">', unsafe_allow_html=True)
+st.markdown('<div class="section-heading">📍 Location</div>', unsafe_allow_html=True)
 
-# ══════════════════════════════
-#  LEFT
-# ══════════════════════════════
-with left_col:
-    st.markdown('<div class="loc-label">Location</div>', unsafe_allow_html=True)
+col_inp, col_s, col_f = st.columns([5, 1.2, 1.5])
+with col_inp:
     search_query = st.text_input("loc", value="Chennai", key="searchbar", label_visibility="collapsed")
+with col_s:
+    search_btn = st.button("🔍 Search", key="searchbtn")
+with col_f:
+    fetch_btn = st.button("⟳ Fetch & Predict", key="fetchbtn")
 
-    col_s, col_b = st.columns([3, 2])
-    with col_s:
-        search_btn = st.button("🔍 Search", key="searchbtn")
-    with col_b:
-        fetch_btn = st.button("⟳ Fetch & Predict", key="fetchbtn")
+if search_btn and search_query:
+    geo = requests.get(
+        f"http://api.openweathermap.org/geo/1.0/direct?q={search_query}&limit=1&appid={OPENWEATHER_API_KEY}"
+    )
+    geo_data = geo.json() if geo.status_code == 200 else []
+    if geo_data:
+        loc = geo_data[0]
+        st.session_state.map_center = (loc['lat'], loc['lon'])
+        st.session_state.marker     = (loc['lat'], loc['lon'])
+        st.session_state.city_name  = f"{loc['name']}, {loc.get('country','')}"
+        st.session_state.features   = None
+        st.session_state.results    = None
+        st.rerun()
+    else:
+        st.error("Location not found. Try a different name.")
 
-    # handle search
-    if search_btn and search_query:
-        geo = requests.get(
-            f"http://api.openweathermap.org/geo/1.0/direct?q={search_query}&limit=1&appid={OPENWEATHER_API_KEY}"
-        )
-        geo_data = geo.json() if geo.status_code == 200 else []
-        if geo_data:
-            loc = geo_data[0]
-            st.session_state.map_center = (loc['lat'], loc['lon'])
-            st.session_state.marker     = (loc['lat'], loc['lon'])
-            st.session_state.city_name  = f"{loc['name']}, {loc.get('country','')}"
-            st.session_state.features   = None
-            st.session_state.results    = None
-        else:
-            st.error("Location not found.")
+st.markdown('</div>', unsafe_allow_html=True)  # close section
 
-    # map
-    m = folium.Map(location=st.session_state.map_center, zoom_start=7,
-                   tiles="CartoDB positron", control_scale=False)
-    folium.Marker(
-        location=st.session_state.marker,
-        icon=folium.Icon(color='red', icon='map-marker', prefix='fa'),
-        popup=st.session_state.city_name,
-    ).add_to(m)
-    map_data = st_folium(m, width="100%", height=240, returned_objects=["last_clicked"], key="map")
+# ══════════════════════════════
+# SECTION 2 — MAP
+# ══════════════════════════════
+st.markdown('<div class="section" style="padding:20px 20px;">', unsafe_allow_html=True)
 
-    # map click
-    if map_data and map_data.get("last_clicked"):
-        clat = map_data["last_clicked"]["lat"]
-        clon = map_data["last_clicked"]["lng"]
-        if (clat, clon) != st.session_state.marker:
-            st.session_state.marker     = (clat, clon)
-            st.session_state.map_center = (clat, clon)
-            st.session_state.city_name  = f"{clat:.4f}°N, {clon:.4f}°E"
-            st.session_state.features   = None
-            st.session_state.results    = None
-            st.rerun()
+m = folium.Map(
+    location=st.session_state.map_center,
+    zoom_start=7,
+    tiles="CartoDB positron",
+    control_scale=False,
+    attr=" ",
+)
+folium.Marker(
+    location=st.session_state.marker,
+    icon=folium.Icon(color='red', icon='map-marker', prefix='fa'),
+    popup=st.session_state.city_name,
+).add_to(m)
 
-    # mini metric cards
-    f = st.session_state.features
-    pm25 = f"{ f['PM2.5']:.1f}" if f else "—"
-    pm10 = f"{ f['PM10']:.1f}"  if f else "—"
-    no2  = f"{ f['NO2']:.1f}"   if f else "—"
-    aqi_disp = "—"
-    if st.session_state.results and st.session_state.results.get('aqi'):
-        aqi_disp = f"{st.session_state.results['aqi'][0]:.2f}"
+map_data = st_folium(m, width="100%", height=420, returned_objects=["last_clicked"], key="map")
 
-    st.markdown(f"""
-    <div class="mini-grid">
-      <div class="mini-card"><div class="mini-card-label">PM2.5</div><div class="mini-card-val">{pm25}</div></div>
-      <div class="mini-card"><div class="mini-card-label">PM10</div><div class="mini-card-val">{pm10}</div></div>
-      <div class="mini-card"><div class="mini-card-label">NO2</div><div class="mini-card-val">{no2}</div></div>
-      <div class="mini-card"><div class="mini-card-label">AQI</div><div class="mini-card-val" style="color:#1a3a5c;">{aqi_disp}</div></div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # fetch & predict
-    if fetch_btn or (map_data and map_data.get("last_clicked") and st.session_state.features is None):
-        lat, lon = st.session_state.marker
-        with st.spinner("Fetching data…"):
-            air, wx = fetch_openweather_data(lat, lon)
-            features = extract_features(air, wx)
-            st.session_state.features = features
-
-            aqi_input = [features[k] for k in ['PM2.5','PM10','NO2','SO2','CO','O3']]
-            aqi_res   = predict_aqi(aqi_input)
-            disease_res = {}
-            for disease, feats in disease_labels.items():
-                inp = [features[k] for k in feats if k in features]
-                disease_res[disease] = predict_disease_with_explanation(inp, disease)
-            st.session_state.results = {'aqi': aqi_res, 'diseases': disease_res}
+if map_data and map_data.get("last_clicked"):
+    clat = map_data["last_clicked"]["lat"]
+    clon = map_data["last_clicked"]["lng"]
+    if (clat, clon) != st.session_state.marker:
+        st.session_state.marker     = (clat, clon)
+        st.session_state.map_center = (clat, clon)
+        st.session_state.city_name  = f"{clat:.4f}°N, {clon:.4f}°E"
+        st.session_state.features   = None
+        st.session_state.results    = None
         st.rerun()
 
-    # editable features
-    if st.session_state.features:
-        with st.expander("⚙ Edit feature values"):
-            features = st.session_state.features
-            c1, c2 = st.columns(2)
-            keys = list(features.keys())
-            for i, k in enumerate(keys):
-                col = c1 if i < len(keys)//2 else c2
-                features[k] = col.number_input(k, value=float(features[k]), key=f"feat_{k}")
-            st.session_state.features = features
+st.markdown('</div>', unsafe_allow_html=True)
+
+# ── Fetch & predict logic ─────────────────────────────────────────────────────
+if fetch_btn:
+    lat, lon = st.session_state.marker
+    with st.spinner("Fetching air quality data and running predictions…"):
+        air, wx = fetch_openweather_data(lat, lon)
+        features = extract_features(air, wx)
+        st.session_state.features = features
+
+        aqi_input = [features[k] for k in ['PM2.5','PM10','NO2','SO2','CO','O3']]
+        aqi_res   = predict_aqi(aqi_input)
+        disease_res = {}
+        for disease, feats in disease_labels.items():
+            inp = [features[k] for k in feats if k in features]
+            disease_res[disease] = predict_disease_with_explanation(inp, disease)
+        st.session_state.results = {'aqi': aqi_res, 'diseases': disease_res}
+    st.rerun()
+
+f = st.session_state.features
+results = st.session_state.results
 
 # ══════════════════════════════
-#  RIGHT
+# SECTION 3 — METRICS
 # ══════════════════════════════
-with right_col:
-    # steps bar
+st.markdown('<div class="section">', unsafe_allow_html=True)
+st.markdown('<div class="section-heading">📊 Air Quality Metrics</div>', unsafe_allow_html=True)
+
+def fv(key, dec=1):
+    return f"{f[key]:.{dec}f}" if f else "—"
+
+st.markdown(f"""
+<div class="metric-grid">
+  <div class="metric-card"><div class="metric-label">PM2.5</div><div class="metric-val">{fv('PM2.5')}</div></div>
+  <div class="metric-card"><div class="metric-label">PM10</div><div class="metric-val">{fv('PM10')}</div></div>
+  <div class="metric-card"><div class="metric-label">NO2</div><div class="metric-val">{fv('NO2')}</div></div>
+  <div class="metric-card"><div class="metric-label">SO2</div><div class="metric-val">{fv('SO2')}</div></div>
+  <div class="metric-card"><div class="metric-label">CO</div><div class="metric-val">{fv('CO')}</div></div>
+  <div class="metric-card"><div class="metric-label">O3</div><div class="metric-val">{fv('O3')}</div></div>
+  <div class="metric-card"><div class="metric-label">Temperature</div><div class="metric-val">{fv('Temperature')}°C</div></div>
+  <div class="metric-card"><div class="metric-label">Humidity</div><div class="metric-val">{fv('Humidity', 0)}%</div></div>
+</div>
+""", unsafe_allow_html=True)
+
+if f:
+    with st.expander("⚙ Edit feature values before re-running"):
+        c1, c2 = st.columns(2)
+        keys = list(f.keys())
+        for i, k in enumerate(keys):
+            col = c1 if i < len(keys)//2 else c2
+            f[k] = col.number_input(k, value=float(f[k]), key=f"feat_{k}")
+        st.session_state.features = f
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# ══════════════════════════════
+# SECTION 4 — RESULTS
+# ══════════════════════════════
+st.markdown('<div class="section">', unsafe_allow_html=True)
+st.markdown("""
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+  <span style="font-size:20px;">📈</span>
+  <span style="font-size:17px;font-weight:700;color:#1e293b;">Prediction Results</span>
+</div>
+""", unsafe_allow_html=True)
+
+if not results:
     st.markdown("""
     <div class="steps-bar">
-      <span style="font-size:16px;color:#94a3b8;">ℹ</span>
-      <div class="step-item"><div class="step-num">1</div> Search or click map</div>
-      <div class="step-item"><div class="step-num">2</div> Review metrics</div>
-      <div class="step-item"><div class="step-num">3</div> Fetch &amp; predict</div>
+      <div class="step-item"><div class="step-num">1</div> Search or click the map</div>
+      <div class="step-item"><div class="step-num">2</div> Review metrics above</div>
+      <div class="step-item"><div class="step-num">3</div> Click Fetch &amp; Predict</div>
+    </div>
+    <div style="text-align:center;padding:36px 0;color:#94a3b8;font-size:14px;">
+        No predictions yet — fetch data to see AQI and disease risk results.
     </div>
     """, unsafe_allow_html=True)
+else:
+    # AQI
+    aqi_val, lime_exp, shap_exp = results['aqi'] if results.get('aqi') else (None, None, None)
+    if aqi_val is not None:
+        cat, color = aqi_category(aqi_val)
+        st.markdown(f"""
+        <div class="aqi-result-card">
+          <div class="aqi-result-label">Predicted AQI</div>
+          <div class="aqi-result-num" style="color:{color};">{aqi_val:.2f}</div>
+          <div class="aqi-result-cat" style="color:{color};">{cat}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        with st.expander("Show XAI details — AQI"):
+            st.write("**LIME explanation:**", lime_exp or "N/A")
+            st.write("**SHAP explanation:**", shap_exp or "N/A")
 
-    # pollutant bar row
-    f = st.session_state.features
-    so2_v  = f"{f['SO2']:.1f}"   if f else "—"
-    co_v   = f"{f['CO']:.1f}"    if f else "—"
-    o3_v   = f"{f['O3']:.1f}"    if f else "—"
-    temp_v = f"{f['Temperature']:.1f}°C" if f else "—"
-    st.markdown(f"""
-    <div class="poll-bar-row">
-      <div class="poll-bar-card"><div class="poll-bar-name">SO2</div><div class="poll-bar-val">{so2_v}</div></div>
-      <div class="poll-bar-card"><div class="poll-bar-name">CO</div><div class="poll-bar-val">{co_v}</div></div>
-      <div class="poll-bar-card"><div class="poll-bar-name">O3</div><div class="poll-bar-val">{o3_v}</div></div>
-      <div class="poll-bar-card"><div class="poll-bar-name">TEMP</div><div class="poll-bar-val">{temp_v}</div></div>
-    </div>
-    """, unsafe_allow_html=True)
+    # disease breakdown
+    st.markdown('<div class="disease-section-title" style="margin-top:20px;">Disease Risk Breakdown</div>', unsafe_allow_html=True)
 
-    results = st.session_state.results
+    disease_res = results.get('diseases', {})
+    sorted_diseases = sorted(
+        disease_labels.keys(),
+        key=lambda d: 0 if (disease_res.get(d) and disease_res[d]['prediction'] == 1) else 1
+    )
 
-    # results area
-    st.markdown('<div style="padding:18px 4px 0;">', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-      <span style="font-size:18px;">📊</span>
-      <span style="font-size:17px;font-weight:700;color:#1e293b;">Prediction results</span>
-    </div>
-    """, unsafe_allow_html=True)
+    for disease in sorted_diseases:
+        res = disease_res.get(disease)
+        if not res:
+            continue
+        is_high   = res['prediction'] == 1
+        badge_cls = "badge-high" if is_high else "badge-low"
+        badge_txt = "⚠ HIGH"     if is_high else "✓ LOW"
+        effect    = disease_effects.get(disease, "")
 
-    if results:
-        # AQI card
-        aqi_val, lime_exp, shap_exp = results['aqi'] if results.get('aqi') else (None, None, None)
-        if aqi_val is not None:
-            cat, color = aqi_category(aqi_val)
-            st.markdown(f"""
-            <div class="aqi-card">
-              <div class="aqi-card-left">
-                <div class="aqi-card-label">Predicted AQI</div>
-                <div class="aqi-card-num" style="color:{color};">{aqi_val:.2f}</div>
-                <div class="aqi-card-cat" style="color:{color};">{cat}</div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            with st.expander("Show XAI details — AQI"):
-                st.write("**LIME explanation:**", lime_exp or "N/A")
-                st.write("**SHAP explanation:**", shap_exp or "N/A")
-
-        # disease list
-        st.markdown('<div class="section-title">Disease risk breakdown</div>', unsafe_allow_html=True)
-
-        disease_res = results.get('diseases', {})
-        sorted_diseases = sorted(
-            disease_labels.keys(),
-            key=lambda d: 0 if (disease_res.get(d) and disease_res[d]['prediction'] == 1) else 1
-        )
-
-        st.markdown('<div class="disease-list">', unsafe_allow_html=True)
-        for disease in sorted_diseases:
-            res = disease_res.get(disease)
-            if not res:
-                continue
-            is_high   = res['prediction'] == 1
-            badge_cls = "badge-high" if is_high else "badge-low"
-            badge_txt = "⚠ HIGH"     if is_high else "✓ LOW"
-            effect    = disease_effects.get(disease, "")
-
-            st.markdown(f"""
-            <div class="disease-row">
-              <div class="disease-row-left">
-                <div class="disease-name">{disease}</div>
-                <div class="disease-effect">{effect}</div>
-              </div>
-              <div class="badge {badge_cls}">{badge_txt}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            with st.expander(f"Full details — {disease}"):
-                hi_lo = "HIGH RISK" if is_high else "LOW RISK"
-                conf  = max(res['probability'])
-                acc   = res['accuracy'] if res['accuracy'] is not None else "N/A"
-
-                col1, col2 = st.columns(2)
-                col1.metric("Risk level",  hi_lo)
-                col2.metric("Confidence", f"{conf:.3f}")
-                col1.metric("Model accuracy", str(acc))
-
-                st.markdown(f"**Health effects:** {disease_effects.get(disease,'')}")
-                st.markdown(f"**Precautions:** {disease_precautions.get(disease,'')}")
-
-                if res.get('risk_factors'):
-                    st.markdown("**Key risk factors:**")
-                    for factor in res['risk_factors'][:5]:
-                        direction = "increases" if factor['type'] == 'risk_increasing' else "decreases"
-                        st.markdown(f"- `{factor['feature']}` **{direction}** risk &nbsp;(contribution: `{factor['contribution']:.4f}`)")
-
-                if res.get('recommendations'):
-                    st.markdown("**Recommendations:**")
-                    for rec in res['recommendations']:
-                        st.markdown(f"- {rec}")
-
-                with st.expander("LIME / SHAP explanation"):
-                    st.write("**LIME:**", res.get('lime_explanation') or "N/A")
-                    st.write("**SHAP:**", res.get('shap_explanation') or "N/A")
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    else:
-        st.markdown("""
-        <div style="text-align:center;padding:50px 20px;color:#94a3b8;font-size:14px;">
-            Search a city or click the map, then click <b>⟳ Fetch &amp; Predict</b>
+        st.markdown(f"""
+        <div class="disease-item">
+          <div>
+            <div class="disease-name">{disease}</div>
+            <div class="disease-blurb">{effect}</div>
+          </div>
+          <div class="badge {badge_cls}">{badge_txt}</div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        with st.expander(f"Full details — {disease}"):
+            conf = max(res['probability'])
+            acc  = res['accuracy'] if res['accuracy'] is not None else "N/A"
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Risk",       "HIGH" if is_high else "LOW")
+            m2.metric("Confidence", f"{conf:.3f}")
+            m3.metric("Accuracy",   str(acc))
+
+            st.markdown(f"**Health effects:** {disease_effects.get(disease,'')}")
+            st.markdown(f"**Precautions:** {disease_precautions.get(disease,'')}")
+
+            if res.get('risk_factors'):
+                st.markdown("**Key risk factors:**")
+                for factor in res['risk_factors'][:5]:
+                    direction = "increases" if factor['type'] == 'risk_increasing' else "decreases"
+                    st.markdown(f"- `{factor['feature']}` **{direction}** risk — contribution: `{factor['contribution']:.4f}`")
+
+            if res.get('recommendations'):
+                st.markdown("**Recommendations:**")
+                for rec in res['recommendations']:
+                    st.markdown(f"- {rec}")
+
+            with st.expander("LIME / SHAP explanation"):
+                st.write("**LIME:**", res.get('lime_explanation') or "N/A")
+                st.write("**SHAP:**", res.get('shap_explanation') or "N/A")
+
+st.markdown('</div>', unsafe_allow_html=True)  # close results section
+st.markdown('</div>', unsafe_allow_html=True)  # close page
 
 # ── FOOTER ────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div class="footer-bar">
+<div class="footer">
   <div class="footer-creator">
-    <span style="font-size:28px;">🌷</span>
+    <span style="font-size:32px;">🌷</span>
     <div>
       <div class="footer-name">Keerthishree Kesavan</div>
       <div class="footer-role">AI/ML Focused Full Stack Developer</div>
     </div>
   </div>
   <div class="footer-center">Powered by OpenWeather &amp; Explainable AI</div>
-  <a href="https://github.com/Keerthishreekesavan" target="_blank"
-     style="font-size:13px;font-weight:600;color:#1a3a5c;text-decoration:none;
-            border:1px solid #e2e8f0;border-radius:8px;padding:7px 16px;">
-    ⎇ GitHub Profile
-  </a>
+  <a class="footer-btn" href="https://github.com/Keerthishreekesavan" target="_blank">⎇ GitHub Profile</a>
 </div>
 """, unsafe_allow_html=True)
