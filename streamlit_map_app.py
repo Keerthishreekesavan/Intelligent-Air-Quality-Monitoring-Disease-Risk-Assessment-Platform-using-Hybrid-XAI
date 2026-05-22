@@ -307,7 +307,7 @@ else:
 st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWeather & Explainable AI</div>", unsafe_allow_html=True) 
 
 # LOAD IMAGE
-with open("tuli.jpg", "rb") as image_file:
+with open("tulip.jpg", "rb") as image_file:
     img_base64 = base64.b64encode(image_file.read()).decode()
 
 st.markdown(f"""
