@@ -9,18 +9,25 @@ OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
 DEFAULT_LOCATION = (13.0827, 80.2707)  # Chennai
 
 st.set_page_config(page_title="Air Quality & Disease Risk Map", layout="wide")
-
 st.markdown("""
 <style>
-* { box-sizing: border-box; }
-.main, body { background: #f0f4f8 !important; }
-.block-container { padding: 0 !important; max-width: 100% !important; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Full-width overrides for Streamlit ── */
+.main .block-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+.main { padding: 0 !important; background: #f0f4f8 !important; }
+body { background: #f0f4f8 !important; }
 section[data-testid="stSidebar"] { display: none; }
 
 /* ── Hero ── */
 .hero {
     background: #0072B5;
-    padding: 28px 40px 60px;
+    padding: 28px 5% 60px;
+    width: 100%;
 }
 .hero-title {
     color: #fff;
@@ -38,7 +45,7 @@ section[data-testid="stSidebar"] { display: none; }
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    padding: 0 40px;
+    padding: 0 5%;
     margin-top: -36px;
     margin-bottom: 20px;
     position: relative;
@@ -83,9 +90,12 @@ section[data-testid="stSidebar"] { display: none; }
 .metric-card.aqi-verypoor .m-value { color: #cc0033; }
 
 /* ── Page body ── */
-.page-body { padding: 0 40px 40px; }
+.page-body {
+    padding: 0 5% 40px;
+    width: 100%;
+}
 
-/* ── How-to expander override ── */
+/* ── How-to expander ── */
 div[data-testid="stExpander"] {
     background: #fff !important;
     border: 1px solid #e2e8f0 !important;
@@ -113,6 +123,7 @@ div[data-testid="stTextInput"] input {
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     overflow: hidden;
+    width: 100%;
 }
 .panel-head {
     padding: 12px 18px;
@@ -165,6 +176,7 @@ div[data-testid="stTextInput"] input {
     border-radius: 14px;
     overflow: hidden;
     margin-bottom: 20px;
+    width: 100%;
 }
 .results-head {
     padding: 12px 18px;
@@ -209,6 +221,12 @@ div[data-testid="stTextInput"] input {
     color: #94a3b8;
     margin-top: 10px;
     padding-bottom: 20px;
+}
+
+/* ── Streamlit column gap fix ── */
+div[data-testid="stHorizontalBlock"] {
+    gap: 1.5rem;
+    align-items: stretch;
 }
 </style>
 """, unsafe_allow_html=True)
