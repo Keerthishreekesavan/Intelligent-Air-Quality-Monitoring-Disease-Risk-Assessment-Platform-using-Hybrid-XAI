@@ -719,66 +719,62 @@ st.markdown(
 # =========================================================
 # CSS
 # =========================================================
+st.markdown("""
+<style>
 
-st.markdown(
-    """
-    <style>
+.disease-card {
+    background-color: white;
+    border-radius: 22px;
+    padding: 24px;
+    margin-bottom: 22px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+}
 
-    .disease-card{
-        background:white;
-        border-radius:22px;
-        padding:24px;
-        margin-bottom:22px;
-        border:1px solid #e2e8f0;
-        box-shadow:0 8px 24px rgba(15,23,42,0.06);
-    }
+.disease-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
 
-    .disease-header{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:18px;
-    }
+.disease-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+}
 
-    .disease-name{
-        font-size:24px;
-        font-weight:800;
-        color:#0f172a;
-    }
+.risk-high {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+}
 
-    .risk-high{
-        background:#fee2e2;
-        color:#dc2626;
-        padding:8px 16px;
-        border-radius:999px;
-        font-weight:700;
-    }
+.risk-low {
+    background-color: #dcfce7;
+    color: #16a34a;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+}
 
-    .risk-low{
-        background:#dcfce7;
-        color:#16a34a;
-        padding:8px 16px;
-        border-radius:999px;
-        font-weight:700;
-    }
+.info-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 12px;
+}
 
-    .info-title{
-        font-size:16px;
-        font-weight:700;
-        color:#0f172a;
-        margin-top:12px;
-    }
+.info-text {
+    color: #475569;
+    line-height: 1.7;
+    margin-top: 6px;
+}
 
-    .info-text{
-        color:#475569;
-        line-height:1.7;
-        margin-top:6px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # RENDER DISEASES
@@ -861,7 +857,7 @@ for disease, feats in disease_labels.items():
         """
 
         st.markdown(card_html, unsafe_allow_html=True)
-        
+
         with st.expander(f"🔍 Explainable AI Details — {disease}"):
 
             probability = result.get("probability")
