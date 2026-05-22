@@ -34,8 +34,7 @@ https://github.com/user-attachments/assets/eca8f561-6474-4761-9058-37df9eb47163
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/MUKILAN0608/Intelligent-Air-Quality-Monitoring-Disease-Risk-Assessment-Platform.git
-   cd Intelligent-Air-Quality-Monitoring-Disease-Risk-Assessment-Platform
+   git clone https://github.com/Keerthishreekesavan/Intelligent-Air-Quality-Monitoring-Disease-Risk-Assessment-Platform-using-Hybrid-XAI
    ```
 2. **Install dependencies**
    ```bash
