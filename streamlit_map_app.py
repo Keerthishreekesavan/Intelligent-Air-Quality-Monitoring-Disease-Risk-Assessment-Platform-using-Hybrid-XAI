@@ -307,31 +307,31 @@ else:
 st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWeather & Explainable AI</div>", unsafe_allow_html=True) 
 
 # LOAD IMAGE
-with open("tulip.jpg", "rb") as image_file:
-    img_base64 = base64.b64encode(image_file.read()).decode()
+import streamlit as st
+import base64
 
-st.markdown(f"""
+# Read image
+with open("tulip.jpg", "rb") as img_file:
+    b64_string = base64.b64encode(img_file.read()).decode()
+
+html_code = f"""
 <style>
-
 .creator-card {{
-    margin-top: 60px;
-    padding: 28px;
-    border-radius: 24px;
+    margin-top: 50px;
+    padding: 25px;
+    border-radius: 20px;
     background: white;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
-
-    border: 1px solid #f1f1f1;
 }}
 
 .creator-left {{
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 20px;
 }}
 
 .creator-left img {{
@@ -339,38 +339,33 @@ st.markdown(f"""
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }}
 
 .creator-name {{
-    font-size: 30px;
-    font-weight: 700;
-    color: #111827;
+    font-size: 28px;
+    font-weight: bold;
 }}
 
 .creator-role {{
-    font-size: 15px;
-    color: #6b7280;
-    margin-top: 4px;
+    color: gray;
+    margin-top: 5px;
 }}
 
 .creator-btn {{
     background: #2563eb;
     color: white !important;
-    padding: 14px 24px;
-    border-radius: 14px;
+    padding: 12px 20px;
+    border-radius: 12px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: bold;
 }}
-
 </style>
 
 <div class="creator-card">
 
     <div class="creator-left">
 
-        <img src="data:image/png;base64,{img_base64}">
+        <img src="data:image/png;base64,{b64_string}">
 
         <div>
             <div class="creator-name">
@@ -378,7 +373,7 @@ st.markdown(f"""
             </div>
 
             <div class="creator-role">
-                Full Stack AI/ML Developer
+                AI/ML Focused Full Stack Developer
             </div>
         </div>
 
@@ -393,5 +388,6 @@ st.markdown(f"""
     </a>
 
 </div>
+"""
 
-""", unsafe_allow_html=True)
+st.markdown(html_code, unsafe_allow_html=True)
