@@ -310,84 +310,31 @@ st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWe
 import streamlit as st
 import base64
 
-# Read image
-with open("tulip.jpg", "rb") as img_file:
-    b64_string = base64.b64encode(img_file.read()).decode()
+st.markdown("---")
 
-html_code = f"""
-<style>
-.creator-card {{
-    margin-top: 50px;
-    padding: 25px;
-    border-radius: 20px;
-    background: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+col1, col2 = st.columns([4,1])
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}}
+with col1:
+    left1, left2 = st.columns([1,4])
 
-.creator-left {{
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}}
+    with left1:
+        st.image("tulip.jpg", width=90)
 
-.creator-left img {{
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-}}
+    with left2:
+        st.markdown("""
+        <h2 style='margin-bottom:0px;'>
+        Created by Keerthishree Kesavan
+        </h2>
 
-.creator-name {{
-    font-size: 28px;
-    font-weight: bold;
-}}
+        <p style='color:gray; font-size:18px; margin-top:0px;'>
+        AI/ML Focused Full Stack Developer
+        </p>
+        """, unsafe_allow_html=True)
 
-.creator-role {{
-    color: gray;
-    margin-top: 5px;
-}}
+with col2:
+    st.link_button(
+        "GitHub Profile",
+        "https://github.com/Keerthishreekesavan"
+    )
 
-.creator-btn {{
-    background: #2563eb;
-    color: white !important;
-    padding: 12px 20px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: bold;
-}}
-</style>
-
-<div class="creator-card">
-
-    <div class="creator-left">
-
-        <img src="data:image/png;base64,{b64_string}">
-
-        <div>
-            <div class="creator-name">
-                Created by Keerthishree Kesavan
-            </div>
-
-            <div class="creator-role">
-                AI/ML Focused Full Stack Developer
-            </div>
-        </div>
-
-    </div>
-
-    <a class="creator-btn"
-       href="https://github.com/Keerthishreekesavan"
-       target="_blank">
-
-       GitHub Profile
-
-    </a>
-
-</div>
-"""
-
-st.markdown(html_code, unsafe_allow_html=True)
+st.markdown("---")
