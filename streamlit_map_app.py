@@ -2,31 +2,28 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import requests
-import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+
 from models import predict_disease_with_explanation, predict_aqi
 
-# -----------------------------------------------------
-# PAGE CONFIG
-# -----------------------------------------------------
+# =========================================================
+# CONFIG
+# =========================================================
 
 st.set_page_config(
     page_title="AirSense AI",
-    page_icon="🌍",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# -----------------------------------------------------
-# CONFIG
-# -----------------------------------------------------
-
 OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
+
 DEFAULT_LOCATION = (13.0827, 80.2707)
 
-# -----------------------------------------------------
-# CUSTOM CSS
-# -----------------------------------------------------
+# =========================================================
+# STYLING
+# =========================================================
 
 st.markdown("""
 <style>
@@ -35,587 +32,543 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-.main {
-    background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
-    color: white;
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+    max-width: 1450px;
 }
 
-.block-container {
-    max-width: 96%;
-    padding-top: 1.5rem;
+.main {
+    background-color: #f5f7fb;
 }
 
 section[data-testid="stSidebar"] {
-    background: #0b1220;
-    border-right: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+    border-right: 1px solid #dbeafe;
 }
 
-.hero-card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border-radius: 24px;
-    padding: 2rem;
-    border: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 1.5rem;
+section[data-testid="stSidebar"] * {
+    color: #111827 !important;
+}
+
+.sidebar-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #2563eb;
+    margin-bottom: 5px;
+}
+
+.sidebar-sub {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 35px;
 }
 
 .metric-card {
-    background: rgba(255,255,255,0.05);
+    background: white;
+    padding: 22px;
     border-radius: 20px;
-    padding: 1.2rem;
-    border: 1px solid rgba(255,255,255,0.08);
-    text-align: center;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    margin-bottom: 20px;
 }
 
 .metric-title {
-    color: #94a3b8;
-    font-size: 0.95rem;
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 8px;
 }
 
 .metric-value {
-    font-size: 2rem;
+    font-size: 34px;
     font-weight: 700;
-    color: white;
+    color: #111827;
 }
 
-.metric-sub {
-    color: #38bdf8;
-}
-
-.disease-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 20px;
-    padding: 1rem;
-    border-left: 5px solid #22c55e;
-    margin-bottom: 1rem;
-}
-
-.high-risk {
-    border-left: 5px solid #ef4444;
-}
-
-.glow-title {
-    font-size: 3rem;
+.main-title {
+    font-size: 54px;
     font-weight: 800;
     color: #38bdf8;
+    text-align: center;
+    margin-bottom: 0px;
 }
 
-.subtitle {
+.sub-title {
+    text-align: center;
     color: #94a3b8;
+    font-size: 24px;
+    margin-top: -10px;
+    margin-bottom: 40px;
 }
 
-.stButton>button {
-    background: linear-gradient(90deg,#0284c7,#2563eb);
+.section-title {
+    font-size: 38px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1e293b;
+}
+
+.risk-high {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.risk-low {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.stButton > button {
+    width: 100%;
+    border-radius: 12px;
+    height: 50px;
+    background: linear-gradient(90deg,#2563eb,#38bdf8);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 16px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------
+# =========================================================
+# HEADER
+# =========================================================
+
+st.markdown("""
+<div class="main-title">
+🌍 AirSense AI
+</div>
+
+<div class="sub-title">
+AI-Powered Air Quality & Disease Risk Intelligence Platform
+</div>
+""", unsafe_allow_html=True)
+
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+with st.sidebar:
+
+    st.markdown("""
+    <div class="sidebar-title">
+        🌍 AirSense AI
+    </div>
+
+    <div class="sidebar-sub">
+        Environmental Health Intelligence Platform
+    </div>
+    """, unsafe_allow_html=True)
+
+    search_query = st.text_input(
+        "Search Location",
+        value="Chennai"
+    )
+
+    search_btn = st.button("🔍 Search")
+
+# =========================================================
 # AQI CATEGORY
-# -----------------------------------------------------
+# =========================================================
 
 def aqi_category(aqi):
-    if aqi < 50:
+    if aqi < 2:
         return "Good"
-    elif aqi < 100:
+    elif aqi < 3:
         return "Fair"
-    elif aqi < 150:
+    elif aqi < 4:
         return "Moderate"
-    elif aqi < 200:
+    elif aqi < 5:
         return "Poor"
-    return "Very Poor"
+    else:
+        return "Very Poor"
 
-# -----------------------------------------------------
-# DISEASE LABELS
-# -----------------------------------------------------
+# =========================================================
+# FETCH WEATHER
+# =========================================================
+
+def fetch_openweather_data(lat, lon):
+
+    air_url = (
+        f"https://api.openweathermap.org/data/2.5/air_pollution?"
+        f"lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+    )
+
+    weather_url = (
+        f"https://api.openweathermap.org/data/2.5/weather?"
+        f"lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
+    )
+
+    air_resp = requests.get(air_url)
+    weather_resp = requests.get(weather_url)
+
+    air_data = air_resp.json()
+    weather_data = weather_resp.json()
+
+    return air_data, weather_data
+
+# =========================================================
+# EXTRACT FEATURES
+# =========================================================
+
+def extract_features(air_data, weather_data):
+
+    comp = air_data["list"][0]["components"]
+
+    features = {
+        'PM2.5': comp.get('pm2_5', 0),
+        'PM10': comp.get('pm10', 0),
+        'NO2': comp.get('no2', 0),
+        'SO2': comp.get('so2', 0),
+        'CO': comp.get('co', 0),
+        'O3': comp.get('o3', 0),
+        'NH3': comp.get('nh3', 0),
+        'NO': comp.get('no', 0),
+        'Temperature': weather_data['main'].get('temp', 0),
+        'Humidity': weather_data['main'].get('humidity', 0),
+        'Wind Speed': weather_data['wind'].get('speed', 0),
+        'Pressure': weather_data['main'].get('pressure', 0)
+    }
+
+    return features
+
+# =========================================================
+# SEARCH LOCATION
+# =========================================================
+
+if "map_center" not in st.session_state:
+    st.session_state.map_center = DEFAULT_LOCATION
+
+if "marker" not in st.session_state:
+    st.session_state.marker = DEFAULT_LOCATION
+
+if search_btn:
+
+    geo_url = (
+        f"http://api.openweathermap.org/geo/1.0/direct?"
+        f"q={search_query}&limit=1&appid={OPENWEATHER_API_KEY}"
+    )
+
+    geo_resp = requests.get(geo_url)
+    geo_data = geo_resp.json()
+
+    if geo_data:
+
+        lat = geo_data[0]['lat']
+        lon = geo_data[0]['lon']
+
+        st.session_state.map_center = (lat, lon)
+        st.session_state.marker = (lat, lon)
+
+# =========================================================
+# MAIN LAYOUT
+# =========================================================
+
+left, right = st.columns([2.1, 1])
+
+# =========================================================
+# MAP
+# =========================================================
+
+with left:
+
+    st.markdown(
+        "<div class='section-title'>🗺️ Interactive Pollution Map</div>",
+        unsafe_allow_html=True
+    )
+
+    m = folium.Map(
+        location=st.session_state.map_center,
+        zoom_start=6,
+        tiles="OpenStreetMap",
+        control_scale=True
+    )
+
+    folium.Marker(
+        location=st.session_state.marker,
+        popup="Selected Location",
+        icon=folium.Icon(color="red")
+    ).add_to(m)
+
+    map_data = st_folium(
+        m,
+        width=950,
+        height=520,
+        returned_objects=["last_clicked"]
+    )
+
+    if map_data["last_clicked"]:
+
+        lat = map_data["last_clicked"]["lat"]
+        lon = map_data["last_clicked"]["lng"]
+
+        st.session_state.marker = (lat, lon)
+
+    lat, lon = st.session_state.marker
+
+# =========================================================
+# FETCH DATA
+# =========================================================
+
+air_data, weather_data = fetch_openweather_data(lat, lon)
+
+features = extract_features(air_data, weather_data)
+
+aqi_input = [
+    features['PM2.5'],
+    features['PM10'],
+    features['NO2'],
+    features['SO2'],
+    features['CO'],
+    features['O3']
+]
+
+aqi_result = predict_aqi(aqi_input)
+
+# =========================================================
+# RIGHT PANEL
+# =========================================================
+
+with right:
+
+    st.markdown(
+        "<div class='section-title'>📊 AQI Dashboard</div>",
+        unsafe_allow_html=True
+    )
+
+    if aqi_result:
+
+        aqi_value, lime_exp, shap_exp = aqi_result
+
+        cat = aqi_category(aqi_value)
+
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=aqi_value,
+            gauge={
+                'axis': {'range': [0, 6]},
+                'bar': {'color': "#2563eb"},
+                'steps': [
+                    {'range': [0, 2], 'color': "#22c55e"},
+                    {'range': [2, 3], 'color': "#eab308"},
+                    {'range': [3, 4], 'color': "#f97316"},
+                    {'range': [4, 6], 'color': "#ef4444"},
+                ],
+            }
+        ))
+
+        fig.update_layout(height=300)
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown(f"""
+        <div class="metric-card">
+
+            <div class="metric-title">
+                AQI STATUS
+            </div>
+
+            <div class="metric-value">
+                {cat}
+            </div>
+
+            <div style='margin-top:10px;color:#6b7280;font-size:15px;'>
+                AQI Value: {aqi_value:.2f}
+            </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+        pollutant_df = pd.DataFrame({
+            "Pollutant": ["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"],
+            "Value": aqi_input
+        })
+
+        fig2 = px.bar(
+            pollutant_df,
+            x="Pollutant",
+            y="Value"
+        )
+
+        fig2.update_layout(
+            height=350,
+            template="plotly_white"
+        )
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+# =========================================================
+# WEATHER CARDS
+# =========================================================
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+c1, c2, c3, c4 = st.columns(4)
+
+cards = [
+    ("🌡️ Temperature", f"{features['Temperature']} °C"),
+    ("💧 Humidity", f"{features['Humidity']}%"),
+    ("🌬️ Wind Speed", f"{features['Wind Speed']} m/s"),
+    ("📈 Pressure", f"{features['Pressure']} hPa")
+]
+
+for col, item in zip([c1, c2, c3, c4], cards):
+
+    with col:
+
+        st.markdown(f"""
+        <div class="metric-card">
+
+            <div class="metric-title">
+                {item[0]}
+            </div>
+
+            <div class="metric-value" style="font-size:28px;">
+                {item[1]}
+            </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+# =========================================================
+# EDITABLE FEATURES
+# =========================================================
+
+st.markdown(
+    "<div class='section-title'>⚙️ Editable Environmental Features</div>",
+    unsafe_allow_html=True
+)
+
+col1, col2, col3 = st.columns(3)
+
+feature_keys = list(features.keys())
+
+for i, key in enumerate(feature_keys):
+
+    if i % 3 == 0:
+        features[key] = col1.number_input(key, value=float(features[key]))
+
+    elif i % 3 == 1:
+        features[key] = col2.number_input(key, value=float(features[key]))
+
+    else:
+        features[key] = col3.number_input(key, value=float(features[key]))
+
+# =========================================================
+# DISEASES
+# =========================================================
 
 disease_labels = {
     'Asthma': ['PM2.5', 'PM10', 'NO2'],
     'COPD': ['PM2.5', 'PM10', 'SO2'],
     'Lung Cancer': ['PM2.5', 'PM10', 'NO2', 'O3'],
     'Pneumonia & Bronchitis': ['PM2.5', 'PM10', 'SO2', 'CO'],
-    'Reduced Lung Function in Children': ['PM2.5', 'NO2', 'O3'],
     'Heart Attacks': ['PM2.5', 'PM10', 'CO'],
     'Hypertension': ['NO2', 'SO2', 'CO'],
-    'Strokes': ['PM2.5', 'PM10', 'NO2'],
-    'Arrhythmia': ['NO2', 'SO2', 'CO'],
-    "Alzheimer's & Dementia": ['PM2.5', 'NO2'],
-    "Parkinson's Disease": ['PM2.5', 'NO2', 'O3'],
-    "Cognitive Impairment in Children": ['PM2.5', 'NO2'],
-    "Low Birth Weight": ['PM2.5', 'PM10', 'NO2'],
-    "Preterm Births": ['PM2.5', 'PM10', 'NO2'],
-    "Sudden Infant Death Syndrome (SIDS)": ['PM2.5', 'PM10'],
-    "Bladder Cancer": ['PM2.5', 'NO2', 'O3'],
-    "Diabetes": ['PM2.5', 'NO2', 'SO2'],
-    "Eye & Skin Irritation": ['SO2', 'O3']
 }
 
-# -----------------------------------------------------
-# API FETCH
-# -----------------------------------------------------
+st.markdown(
+    "<div class='section-title'>🩺 Disease Risk Predictions</div>",
+    unsafe_allow_html=True
+)
 
-def fetch_openweather_data(lat, lon):
+for disease, feats in disease_labels.items():
 
-    air_url = f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+    disease_input = [features[f] for f in feats]
 
-    weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-
-    air_resp = requests.get(air_url)
-    weather_resp = requests.get(weather_url)
-
-    air_data = air_resp.json() if air_resp.status_code == 200 else None
-    weather_data = weather_resp.json() if weather_resp.status_code == 200 else None
-
-    return air_data, weather_data
-
-# -----------------------------------------------------
-# FEATURE EXTRACTION
-# -----------------------------------------------------
-
-def extract_features(air_data, weather_data):
-
-    features = {
-        'PM2.5': 10.0,
-        'PM10': 20.0,
-        'NO2': 10.0,
-        'SO2': 5.0,
-        'CO': 0.5,
-        'O3': 15.0,
-        'NH3': 1.0,
-        'NO': 1.0,
-        'Temperature': 25.0,
-        'Humidity': 50.0,
-        'Wind Speed': 2.0,
-        'Pressure': 1013.0
-    }
-
-    if air_data and "list" in air_data:
-        comp = air_data["list"][0]["components"]
-
-        features['PM2.5'] = comp.get('pm2_5', 0)
-        features['PM10'] = comp.get('pm10', 0)
-        features['NO2'] = comp.get('no2', 0)
-        features['SO2'] = comp.get('so2', 0)
-        features['CO'] = comp.get('co', 0)
-        features['O3'] = comp.get('o3', 0)
-        features['NH3'] = comp.get('nh3', 0)
-        features['NO'] = comp.get('no', 0)
-
-    if weather_data:
-        features['Temperature'] = weather_data['main'].get('temp', 25)
-        features['Humidity'] = weather_data['main'].get('humidity', 50)
-        features['Pressure'] = weather_data['main'].get('pressure', 1013)
-        features['Wind Speed'] = weather_data['wind'].get('speed', 2)
-
-    return features
-
-# -----------------------------------------------------
-# SESSION STATE
-# -----------------------------------------------------
-
-if 'map_center' not in st.session_state:
-    st.session_state.map_center = DEFAULT_LOCATION
-
-if 'marker' not in st.session_state:
-    st.session_state.marker = DEFAULT_LOCATION
-
-# -----------------------------------------------------
-# SIDEBAR
-# -----------------------------------------------------
-
-with st.sidebar:
-
-    st.markdown("# 🌍 AirSense AI")
-
-    st.caption("Environmental Health Intelligence Platform")
-
-    st.markdown("---")
-
-    search_query = st.text_input(
-        "Search Location",
-        "Chennai"
+    result = predict_disease_with_explanation(
+        disease_input,
+        disease
     )
 
-    search_btn = st.button("🔍 Search")
+    if result:
 
-    if search_btn and search_query:
+        risk = "HIGH RISK" if result["prediction"] == 1 else "LOW RISK"
 
-        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={search_query}&limit=1&appid={OPENWEATHER_API_KEY}"
+        risk_class = "risk-high" if risk == "HIGH RISK" else "risk-low"
 
-        geo_resp = requests.get(geo_url)
+        with st.container():
 
-        geo_data = geo_resp.json()
+            st.markdown(f"""
+            <div class="metric-card">
 
-        if geo_data:
-            st.session_state.map_center = (
-                geo_data[0]['lat'],
-                geo_data[0]['lon']
-            )
+                <div style="display:flex;justify-content:space-between;align-items:center;">
 
-            st.session_state.marker = st.session_state.map_center
+                    <div style="font-size:24px;font-weight:700;">
+                        {disease}
+                    </div>
 
-# -----------------------------------------------------
-# HERO
-# -----------------------------------------------------
+                    <div class="{risk_class}">
+                        {risk}
+                    </div>
 
-st.markdown("""
-<div class='hero-card'>
-    <div class='glow-title'>🌍 AirSense AI</div>
-    <div class='subtitle'>
-        AI-Powered Air Quality & Disease Risk Intelligence Platform
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# -----------------------------------------------------
-# MAP
-# -----------------------------------------------------
-
-left, right = st.columns([2,1])
-
-with left:
-
-    st.markdown("## 🗺️ Interactive Pollution Map")
-
-    m = folium.Map(
-        location=st.session_state.map_center,
-        zoom_start=7,
-        tiles='CartoDB dark_matter'
-    )
-
-    folium.Marker(
-        location=st.session_state.marker,
-        popup='Selected Location'
-    ).add_to(m)
-
-    map_data = st_folium(
-        m,
-        height=600,
-        use_container_width=True,
-        returned_objects=['last_clicked']
-    )
-
-    if map_data and map_data['last_clicked']:
-        lat = map_data['last_clicked']['lat']
-        lon = map_data['last_clicked']['lng']
-
-        st.session_state.marker = (lat, lon)
-        st.session_state.map_center = (lat, lon)
-
-    else:
-        lat, lon = st.session_state.marker
-
-with right:
-
-    st.markdown("## 📊 AQI Gauge")
-
-    air_data, weather_data = fetch_openweather_data(lat, lon)
-
-    features = extract_features(air_data, weather_data)
-
-    aqi_input = [
-        features['PM2.5'],
-        features['PM10'],
-        features['NO2'],
-        features['SO2'],
-        features['CO'],
-        features['O3']
-    ]
-
-    aqi_result = predict_aqi(aqi_input)
-
-    if aqi_result:
-
-        aqi_value, lime_exp, shap_exp = aqi_result
-
-        gauge = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=aqi_value,
-            title={'text': "AQI"},
-            gauge={
-                'axis': {'range': [0, 300]},
-                'steps': [
-                    {'range': [0, 50], 'color': 'green'},
-                    {'range': [50, 100], 'color': 'yellow'},
-                    {'range': [100, 200], 'color': 'orange'},
-                    {'range': [200, 300], 'color': 'red'}
-                ]
-            }
-        ))
-
-        gauge.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            font_color='white',
-            height=300
-        )
-
-        st.plotly_chart(gauge, use_container_width=True)
-
-        st.markdown(f"### AQI Status: {aqi_category(aqi_value)}")
-
-        pollutants = {
-            'PM2.5': features['PM2.5'],
-            'PM10': features['PM10'],
-            'NO2': features['NO2'],
-            'SO2': features['SO2'],
-            'CO': features['CO'],
-            'O3': features['O3']
-        }
-
-        fig = px.bar(
-            x=list(pollutants.keys()),
-            y=list(pollutants.values()),
-            title='Pollutant Levels'
-        )
-
-        fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font_color='white'
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-# -----------------------------------------------------
-# TOP METRICS
-# -----------------------------------------------------
-
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.markdown(f"""
-    <div class='metric-card'>
-        <div class='metric-title'>Temperature</div>
-        <div class='metric-value'>{features['Temperature']}°C</div>
-        <div class='metric-sub'>Weather</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown(f"""
-    <div class='metric-card'>
-        <div class='metric-title'>Humidity</div>
-        <div class='metric-value'>{features['Humidity']}%</div>
-        <div class='metric-sub'>Air Moisture</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col3:
-    st.markdown(f"""
-    <div class='metric-card'>
-        <div class='metric-title'>Wind Speed</div>
-        <div class='metric-value'>{features['Wind Speed']}</div>
-        <div class='metric-sub'>m/s</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col4:
-    st.markdown(f"""
-    <div class='metric-card'>
-        <div class='metric-title'>Pressure</div>
-        <div class='metric-value'>{features['Pressure']}</div>
-        <div class='metric-sub'>hPa</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# -----------------------------------------------------
-# EDITABLE FEATURES
-# -----------------------------------------------------
-
-st.markdown("## ⚙️ Editable Environmental Features")
-
-f1, f2 = st.columns(2)
-
-feature_keys = list(features.keys())
-
-for i, key in enumerate(feature_keys):
-
-    if i < len(feature_keys)//2:
-        features[key] = f1.number_input(
-            key,
-            value=float(features[key]),
-            key=f'feat_{key}'
-        )
-    else:
-        features[key] = f2.number_input(
-            key,
-            value=float(features[key]),
-            key=f'feat_{key}'
-        )
-
-# -----------------------------------------------------
-# TABS
-# -----------------------------------------------------
-
-risk_tab, xai_tab, rec_tab = st.tabs([
-    '🩺 Disease Risks',
-    '📈 Explainable AI',
-    '🛡️ Recommendations'
-])
-
-# -----------------------------------------------------
-# DISEASE RISKS
-# -----------------------------------------------------
-
-all_results = {}
-
-with risk_tab:
-
-    st.markdown("## Disease Risk Assessment")
-
-    cols = st.columns(2)
-
-    idx = 0
-
-    for disease, feats in disease_labels.items():
-
-        disease_input = [features[f] for f in feats if f in features]
-
-        result = predict_disease_with_explanation(
-            disease_input,
-            disease
-        )
-
-        if result:
-
-            all_results[disease] = result
-
-            risk = 'HIGH RISK' if result['prediction'] == 1 else 'LOW RISK'
-
-            card_class = 'disease-card high-risk' if risk == 'HIGH RISK' else 'disease-card'
-
-            emoji = '⚠️' if risk == 'HIGH RISK' else '✅'
-
-            with cols[idx % 2]:
-
-                st.markdown(f"""
-                <div class='{card_class}'>
-                    <h3>{emoji} {disease}</h3>
-                    <h2>{risk}</h2>
-                    <p>Confidence: {max(result['probability']):.2f}</p>
                 </div>
-                """, unsafe_allow_html=True)
 
-                with st.expander(f'View {disease} Details'):
+            </div>
+            """, unsafe_allow_html=True)
 
-                    st.write('### LIME Explanation')
-                    st.write(result.get('lime_explanation'))
+            with st.expander("Explainable AI Details"):
 
-                    st.write('### SHAP Explanation')
-                    st.write(result.get('shap_explanation'))
+                st.write(
+                    "Confidence:",
+                    max(result["probability"])
+                )
 
-                    st.write('### Risk Factors')
+                st.write(
+                    "Accuracy:",
+                    result["accuracy"]
+                )
 
-                    if result.get('risk_factors'):
-                        for factor in result['risk_factors'][:5]:
-                            st.write(
-                                f"- {factor['feature']} : {factor['contribution']:.4f}"
-                            )
+                st.write(
+                    "LIME:",
+                    result.get("lime_explanation")
+                )
 
-                    st.write('### Recommendations')
+                st.write(
+                    "SHAP:",
+                    result.get("shap_explanation")
+                )
 
-                    if result.get('recommendations'):
-                        for rec in result['recommendations']:
-                            st.write(f'- {rec}')
-
-            idx += 1
-
-# -----------------------------------------------------
-# XAI TAB
-# -----------------------------------------------------
-
-with xai_tab:
-
-    st.markdown('## Explainable AI Insights')
-
-    impact_data = {
-        'Feature': ['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'O3'],
-        'Impact': [
-            features['PM2.5'],
-            features['PM10'],
-            features['NO2'],
-            features['SO2'],
-            features['CO'],
-            features['O3']
-        ]
-    }
-
-    fig2 = px.bar(
-        impact_data,
-        x='Feature',
-        y='Impact',
-        title='Environmental Impact Analysis'
-    )
-
-    fig2.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font_color='white'
-    )
-
-    st.plotly_chart(fig2, use_container_width=True)
-
-    if aqi_result:
-        with st.expander('AQI Explainability'):
-            st.write('### LIME')
-            st.write(lime_exp)
-
-            st.write('### SHAP')
-            st.write(shap_exp)
-
-# -----------------------------------------------------
-# RECOMMENDATIONS TAB
-# -----------------------------------------------------
-
-with rec_tab:
-
-    st.markdown('## Health Recommendations')
-
-    st.success('Use N95 masks during high pollution periods.')
-
-    st.warning('Avoid outdoor activities during peak traffic hours.')
-
-    st.info('Use indoor air purifiers if AQI remains elevated.')
-
-    st.error('Sensitive groups should minimize outdoor exposure.')
-
-# -----------------------------------------------------
+# =========================================================
 # FOOTER
-# -----------------------------------------------------
+# =========================================================
 
-st.markdown('---')
+st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
-footer1, footer2 = st.columns([4,1])
+f1, f2 = st.columns([4, 1])
 
-with footer1:
+with f1:
 
-    left1, left2 = st.columns([1,4])
+    left1, left2 = st.columns([1, 5])
 
     with left1:
-        st.image('tulip.jpg', width=90)
+        st.image("tulip.jpg", width=80)
 
     with left2:
 
         st.markdown("""
-        <h2 style='margin-bottom:0;'>
+        <div style="font-size:28px;font-weight:700;">
             Created by Keerthishree Kesavan
-        </h2>
+        </div>
 
-        <p style='color:gray;'>
+        <div style="color:#64748b;font-size:17px;">
             AI/ML Focused Full Stack Developer
-        </p>
+        </div>
         """, unsafe_allow_html=True)
 
-with footer2:
+with f2:
 
     st.link_button(
-        'GitHub Profile',
-        'https://github.com/Keerthishreekesavan'
+        "GitHub",
+        "https://github.com/Keerthishreekesavan"
     )
 
-st.markdown('---')
+st.markdown("<br>", unsafe_allow_html=True)
