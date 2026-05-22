@@ -4,7 +4,7 @@ A professional, interactive web application for real-time air quality and diseas
 
 ---
 
-### 🎥 Live Demo 
+### 🎥 Live Web App 
 ➡️ <a href="https://intelligent-air-quality-monitoring-disease-risk-assessment-xai.streamlit.app/">Click to View the Web</a><br>
 <br>
 Set the web application theme to 'light' for enhanced visibility
