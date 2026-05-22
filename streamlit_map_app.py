@@ -303,3 +303,80 @@ else:
 
 # --- Stylish Footer ---
 st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWeather & Explainable AI</div>", unsafe_allow_html=True) 
+st.markdown("""
+<style>
+.creator-card {
+    margin-top: 60px;
+    padding: 25px;
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.creator-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.creator-left img {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.creator-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+}
+
+.creator-role {
+    color: #666;
+    font-size: 15px;
+    margin-top: 4px;
+}
+
+.creator-btn {
+    background: #1d4ed8;
+    color: white !important;
+    padding: 12px 22px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.creator-btn:hover {
+    background: #2563eb;
+}
+</style>
+
+<div class="creator-card">
+    
+    <div class="creator-left">
+        <img src="tulsi.jpg" alt="Creator Image">
+
+        <div>
+            <div class="creator-name">
+                👩‍💻 Created by Keerthishree
+            </div>
+
+            <div class="creator-role">
+                Full Stack AI/ML Developer
+            </div>
+        </div>
+    </div>
+
+    <a class="creator-btn"
+       href="https://github.com/Keerthishreekesavan"
+       target="_blank">
+       GitHub Profile
+    </a>
+
+</div>
+""", unsafe_allow_html=True)
