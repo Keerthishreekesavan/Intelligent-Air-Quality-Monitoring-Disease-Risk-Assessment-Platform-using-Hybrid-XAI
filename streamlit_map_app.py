@@ -304,4 +304,14 @@ else:
     st.info("Search for a location or click on the map, then click 'Fetch Data & Predict' to see results.")
 
 # --- Stylish Footer ---
-st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWeather & Explainable AI</div>", unsafe_allow_html=True) 
+st.markdown(
+    """
+    <div style='text-align:center; padding:20px;'>
+        <h4>👩‍💻 Created by Keerthishree</h4>
+        <a href='https://github.com/Keerthishreekesavan' target='_blank'>
+            🔗 GitHub Profile
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
