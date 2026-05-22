@@ -4,6 +4,8 @@ from streamlit_folium import st_folium
 import requests
 from models import predict_disease_with_explanation, predict_aqi
 import os
+import base64
+
 # --- CONFIG ---
 
 OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
@@ -303,80 +305,93 @@ else:
 
 # --- Stylish Footer ---
 st.markdown("<div class='footer'>Developed by Air Quality AI | Powered by OpenWeather & Explainable AI</div>", unsafe_allow_html=True) 
-st.markdown("""
+
+# LOAD IMAGE
+with open("tuli.jpg", "rb") as image_file:
+    img_base64 = base64.b64encode(image_file.read()).decode()
+
+st.markdown(f"""
 <style>
-.creator-card {
+
+.creator-card {{
     margin-top: 60px;
-    padding: 25px;
+    padding: 28px;
     border-radius: 24px;
     background: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
+    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
 
-.creator-left {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    border: 1px solid #f1f1f1;
+}}
+
+.creator-left {{
     display: flex;
     align-items: center;
     gap: 18px;
-}
+}}
 
-.creator-left img {
-    width: 75px;
-    height: 75px;
+.creator-left img {{
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
-}
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}}
 
-.creator-name {
-    font-size: 28px;
+.creator-name {{
+    font-size: 30px;
     font-weight: 700;
-    color: #111;
-}
+    color: #111827;
+}}
 
-.creator-role {
-    color: #666;
+.creator-role {{
     font-size: 15px;
+    color: #6b7280;
     margin-top: 4px;
-}
+}}
 
-.creator-btn {
-    background: #1d4ed8;
+.creator-btn {{
+    background: #2563eb;
     color: white !important;
-    padding: 12px 22px;
+    padding: 14px 24px;
     border-radius: 14px;
     text-decoration: none;
     font-weight: 600;
-}
+}}
 
-.creator-btn:hover {
-    background: #2563eb;
-}
 </style>
 
 <div class="creator-card">
-    
+
     <div class="creator-left">
-        <img src="tulsi.jpg" alt="Creator Image">
+
+        <img src="data:image/png;base64,{img_base64}">
 
         <div>
             <div class="creator-name">
-                👩‍💻 Created by Keerthishree
+                Created by Keerthishree Kesavan
             </div>
 
             <div class="creator-role">
                 Full Stack AI/ML Developer
             </div>
         </div>
+
     </div>
 
     <a class="creator-btn"
        href="https://github.com/Keerthishreekesavan"
        target="_blank">
+
        GitHub Profile
+
     </a>
 
 </div>
+
 """, unsafe_allow_html=True)
