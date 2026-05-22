@@ -3,6 +3,13 @@ import folium
 from streamlit_folium import st_folium
 import requests
 from models import predict_disease_with_explanation, predict_aqi
+import base64
+
+def get_image_base64(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+tulip_b64 = get_image_base64("tulip.jpg")
 
 # --- CONFIG ---
 OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
@@ -534,7 +541,12 @@ else:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
-st.markdown("""
+
+# ═══════════════════════════════════
+# FOOTER
+# ═══════════════════════════════════
+
+st.markdown(f"""
 <div style='
     display: flex;
     align-items: center;
@@ -547,7 +559,7 @@ st.markdown("""
     margin-bottom: 20px;
 '>
     <div style='display: flex; align-items: center; gap: 12px;'>
-        <img src="https://raw.githubusercontent.com/Keerthishreekesavan/Keerthishreekesavan/main/tulip.jpg"
+        <img src="data:image/jpeg;base64,{tulip_b64}"
              style='width:36px;height:36px;border-radius:50%;object-fit:cover;' />
         <div>
             <div style='font-size:14px;font-weight:700;color:#0f172a;'>Keerthishree Kesavan</div>
