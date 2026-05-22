@@ -419,7 +419,7 @@ with st.expander("ℹ️  How to use this tool"):
     """)
 
 # Search row
-sc, bc = st.columns([5, 1])
+sc, bc = st.columns([4, 1])
 with sc:
     search_query = st.text_input("", "Chennai", placeholder="Search for a city or location…",
                                  label_visibility="collapsed", key="searchbar")
@@ -441,7 +441,7 @@ if search_btn and search_query:
 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
 # ── Map + right panel ────────────────────────────
-map_col, right_col = st.columns([3, 2], gap="large")
+map_col, right_col = st.columns([3, 2])
 
 with map_col:
     st.markdown("<div class='panel'><div class='panel-head'>🗺️ Map — click to select a location</div>", unsafe_allow_html=True)
@@ -511,7 +511,10 @@ if run_prediction:
             features = extract_features(air_data, weather_data)
             st.session_state.fetched_features = features
 
-    features = st.session_state.fetched_features
+    features = st.session_state.get("fetched_features")
+    if not features:
+        st.warning("No data fetched yet. Click Fetch Data & Predict.")
+        st.stop()
     
     st.markdown("#### Editable features")
     ec1, ec2 = st.columns(2)
