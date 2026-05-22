@@ -573,6 +573,6 @@ st.markdown(f"""
         border-radius: 8px; padding: 6px 14px;
         font-size: 13px; font-weight: 600; color: #0f172a;
         text-decoration: none;
-    '>🐙 GitHub Profile</a>
+    '> View GitHub Profile</a>
 </div>
 """, unsafe_allow_html=True)
