@@ -604,34 +604,214 @@ for i, key in enumerate(feature_keys):
 # =========================================================
 # DISEASE RISK PREDICTIONS
 # =========================================================
+# =========================================================
+# DISEASE DATABASE
+# =========================================================
 
 disease_labels = {
-    'Asthma': ['PM2.5', 'PM10', 'NO2'],
-    'COPD': ['PM2.5', 'PM10', 'SO2'],
-    'Lung Cancer': ['PM2.5', 'PM10', 'NO2', 'O3'],
-    'Pneumonia & Bronchitis': ['PM2.5', 'PM10', 'SO2', 'CO'],
-    'Heart Attacks': ['PM2.5', 'PM10', 'CO'],
-    'Hypertension': ['NO2', 'SO2', 'CO'],
+
+    "Arrhythmia": ['CO', 'NO2'],
+
+    "Asthma": ['PM2.5', 'PM10', 'NO2'],
+
+    "COPD": ['PM2.5', 'PM10', 'SO2'],
+
+    "Hypertension": ['NO2', 'SO2', 'CO'],
+
+    "Heart Attacks": ['PM2.5', 'PM10', 'CO'],
+
+    "Pneumonia and Bronchitis": ['PM2.5', 'PM10', 'SO2', 'CO'],
+
+    "Eye and Skin Irritation": ['SO2', 'O3'],
+
+    "Low Birth Weight": ['PM2.5', 'PM10', 'NO2'],
+
+    "Preterm Births": ['PM2.5', 'PM10', 'NO2'],
+
+    "Cognitive Impairment in Children": ['PM2.5', 'NO2'],
+
+    "Reduced Lung Function in Children": ['PM2.5', 'NO2', 'O3']
 }
 
-st.markdown("<br>", unsafe_allow_html=True)
+# =========================================================
+# EFFECTS
+# =========================================================
+
+disease_effects = {
+
+    "Arrhythmia":
+    "Irregular heartbeat triggered by environmental pollution and toxic gases.",
+
+    "Asthma":
+    "Inflammation of airways causing wheezing, coughing, and breathing difficulty.",
+
+    "COPD":
+    "Long-term lung disease causing airflow blockage and chronic breathing issues.",
+
+    "Hypertension":
+    "Persistent high blood pressure caused by pollution-related cardiovascular stress.",
+
+    "Heart Attacks":
+    "Reduced oxygen supply and cardiovascular strain increasing heart attack risk.",
+
+    "Pneumonia and Bronchitis":
+    "Respiratory infections causing mucus buildup, chest pain, and breathing discomfort.",
+
+    "Eye and Skin Irritation":
+    "Air pollutants causing redness, itching, irritation, and allergic reactions.",
+
+    "Low Birth Weight":
+    "Poor fetal development associated with prolonged pollution exposure during pregnancy.",
+
+    "Preterm Births":
+    "Increased risk of premature delivery due to environmental stress and pollutants.",
+
+    "Cognitive Impairment in Children":
+    "Reduced memory, learning ability, and concentration due to toxic air exposure.",
+
+    "Reduced Lung Function in Children":
+    "Impaired lung growth and breathing efficiency caused by polluted environments."
+}
+
+# =========================================================
+# PRECAUTIONS
+# =========================================================
+
+disease_precautions = {
+
+    "Arrhythmia":
+    "Avoid toxic gases, monitor heart health, and reduce exposure during poor AQI.",
+
+    "Asthma":
+    "Wear masks outdoors and avoid high AQI regions.",
+
+    "COPD":
+    "Use inhalers and avoid prolonged outdoor exposure.",
+
+    "Hypertension":
+    "Monitor blood pressure regularly and reduce pollution exposure.",
+
+    "Heart Attacks":
+    "Avoid outdoor workouts during poor AQI and maintain cardiovascular health.",
+
+    "Pneumonia and Bronchitis":
+    "Maintain immunity, stay hydrated, and avoid respiratory irritants.",
+
+    "Eye and Skin Irritation":
+    "Use protective eyewear, wash exposed skin, and avoid polluted outdoor areas.",
+
+    "Low Birth Weight":
+    "Pregnant women should avoid polluted areas and maintain healthy prenatal care.",
+
+    "Preterm Births":
+    "Reduce exposure to smoke and industrial pollutants during pregnancy.",
+
+    "Cognitive Impairment in Children":
+    "Ensure clean indoor air and limit children's exposure to traffic pollution.",
+
+    "Reduced Lung Function in Children":
+    "Use air purifiers indoors and avoid outdoor activities during high AQI."
+}
+
+# =========================================================
+# DISEASE SECTION TITLE
+# =========================================================
 
 st.markdown("""
-<div class="section-title">
-🩺 Disease Risk Analysis
+<div class="section-title" style="margin-top:40px;">
+🩺 Health Risk Analysis
 </div>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# DISEASE CARD CSS
+# =========================================================
+
+st.markdown("""
+<style>
+
+.disease-card{
+    background:white;
+    border-radius:22px;
+    padding:24px;
+    margin-bottom:22px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 8px 24px rgba(15,23,42,0.06);
+}
+
+.disease-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.disease-name{
+    font-size:24px;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.risk-high{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:8px 16px;
+    border-radius:999px;
+    font-weight:700;
+}
+
+.risk-low{
+    background:#dcfce7;
+    color:#16a34a;
+    padding:8px 16px;
+    border-radius:999px;
+    font-weight:700;
+}
+
+.info-title{
+    font-size:16px;
+    font-weight:700;
+    color:#0f172a;
+    margin-top:12px;
+}
+
+.info-text{
+    color:#475569;
+    line-height:1.7;
+    margin-top:6px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# =========================================================
+# RENDER DISEASES
+# =========================================================
+
 for disease, feats in disease_labels.items():
 
-    disease_input = [features[f] for f in feats]
+    try:
 
-    result = predict_disease_with_explanation(
-        disease_input,
-        disease
-    )
+        disease_input = []
 
-    if result:
+        for f in feats:
+
+            if f in features:
+                disease_input.append(features[f])
+
+        if len(disease_input) == 0:
+            continue
+
+        result = predict_disease_with_explanation(
+            disease_input,
+            disease
+        )
+
+        if not result:
+            continue
+
+        if "prediction" not in result:
+            continue
 
         risk = (
             "HIGH RISK"
@@ -645,44 +825,51 @@ for disease, feats in disease_labels.items():
             else "risk-low"
         )
 
+        risk_icon = (
+            "⚠️"
+            if risk == "HIGH RISK"
+            else "✅"
+        )
+
         st.markdown(f"""
         <div class="disease-card">
 
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                margin-bottom:15px;
-            ">
+            <div class="disease-header">
 
-                <div class="disease-title">
+                <div class="disease-name">
                     {disease}
                 </div>
 
                 <div class="{risk_class}">
-                    {risk}
+                    {risk_icon} {risk}
                 </div>
 
             </div>
 
-            <div class="disease-desc">
-                <b>Health Effects:</b><br>
-                {disease_effects[disease]}
+            <div class="info-title">
+                Health Effects
             </div>
 
-            <div class="disease-desc">
-                <b>Precautions:</b><br>
-                {disease_precautions[disease]}
+            <div class="info-text">
+                {disease_effects.get(disease, "N/A")}
+            </div>
+
+            <div class="info-title">
+                Precautions
+            </div>
+
+            <div class="info-text">
+                {disease_precautions.get(disease, "N/A")}
             </div>
 
         </div>
         """, unsafe_allow_html=True)
 
-        with st.expander(f"🔍 Explainable AI Details - {disease}"):
+        with st.expander(f"🔍 Explainable AI Details — {disease}"):
 
             st.write(
                 "Prediction Confidence:",
-                round(max(result["probability"]), 4)
+                max(result["probability"])
             )
 
             st.write(
@@ -692,14 +879,16 @@ for disease, feats in disease_labels.items():
 
             st.write(
                 "LIME Explanation:",
-                result.get("lime_explanation")
+                result.get("lime_explanation") or "N/A"
             )
 
             st.write(
                 "SHAP Explanation:",
-                result.get("shap_explanation")
+                result.get("shap_explanation") or "N/A"
             )
 
+    except Exception:
+        continue
 # =========================================================
 # FOOTER
 # =========================================================
