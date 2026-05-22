@@ -446,9 +446,6 @@ if search_btn and search_query:
 
 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-fetch_btn = st.button("⟳  Fetch Data & Predict", key="fetchbtn")
-
 # ── Map + right panel ────────────────────────────
 map_col, right_col = st.columns([3, 2])
 
@@ -498,6 +495,8 @@ with right_col:
             Fetch data to see pollutant details
         </div>""", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+fetch_btn = st.button("⟳  Fetch Data & Predict", key="fetchbtn")
 
 # ═══════════════════════════════════
 # RESULTS
