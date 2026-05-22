@@ -39,28 +39,6 @@ if "search_message" not in st.session_state:
     st.session_state.search_message = ""
 
 # =========================================================
-# DISEASE DETAILS
-# =========================================================
-
-disease_effects = {
-    "Asthma": "Air pollution can trigger breathing difficulty, chest tightness, wheezing, and coughing.",
-    "COPD": "Polluted air can worsen lung inflammation and reduce oxygen flow in the respiratory system.",
-    "Lung Cancer": "Long-term exposure to pollutants increases the risk of abnormal lung cell growth.",
-    "Pneumonia & Bronchitis": "Pollution can weaken respiratory immunity and increase lung infections.",
-    "Heart Attacks": "Fine particulate matter can affect blood circulation and increase cardiovascular stress.",
-    "Hypertension": "Air pollutants can elevate blood pressure and stress cardiovascular functions."
-}
-
-disease_precautions = {
-    "Asthma": "Wear masks outdoors, avoid heavy traffic areas, and use air purifiers indoors.",
-    "COPD": "Avoid smoking zones, monitor AQI daily, and limit outdoor exposure during poor air quality.",
-    "Lung Cancer": "Reduce long-term exposure to toxic pollutants and maintain healthy indoor ventilation.",
-    "Pneumonia & Bronchitis": "Stay hydrated, avoid polluted environments, and strengthen respiratory hygiene.",
-    "Heart Attacks": "Reduce outdoor activity during poor AQI and maintain cardiovascular fitness.",
-    "Hypertension": "Practice stress management and avoid exposure to highly polluted environments."
-}
-
-# =========================================================
 # CUSTOM CSS
 # =========================================================
 
@@ -74,11 +52,11 @@ html, body, [class*="css"] {
 }
 
 body {
-    background: #f4f7fb;
+    background-color: #f4f7fb;
 }
 
 .main {
-    background: #f4f7fb;
+    background-color: #f4f7fb;
 }
 
 .block-container {
@@ -178,60 +156,6 @@ section[data-testid="stSidebar"] {
 iframe {
     border-radius: 22px !important;
     overflow: hidden !important;
-}
-
-/* ================= DISEASE CARDS ================= */
-
-.disease-card {
-    background: white;
-    border-radius: 24px;
-    padding: 22px;
-    margin-bottom: 22px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 30px rgba(15,23,42,0.05);
-}
-
-.disease-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.disease-desc {
-    color: #64748b;
-    margin-top: 10px;
-    line-height: 1.7;
-    font-size: 15px;
-}
-
-.risk-high {
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    display: inline-block;
-}
-
-.risk-low {
-    background: #dcfce7;
-    color: #16a34a;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    display: inline-block;
-}
-
-/* ================= REMOVE BROKEN HTML VISUALS ================= */
-
-code {
-    white-space: pre-wrap !important;
-}
-
-pre {
-    white-space: pre-wrap !important;
 }
 
 </style>
@@ -566,47 +490,20 @@ with env4:
     )
 
 # =========================================================
-# EDITABLE FEATURES
+# HEALTH RISK ANALYSIS
 # =========================================================
-
-st.markdown("<br>", unsafe_allow_html=True)
 
 st.markdown("""
-<div class="section-title">
-⚙️ Editable Environmental Features
-</div>
+<h2 style="
+    font-size:38px;
+    font-weight:800;
+    margin-top:50px;
+    margin-bottom:25px;
+    color:#0f172a;
+">
+🩺 Health Risk Analysis
+</h2>
 """, unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns(3)
-
-feature_keys = list(features.keys())
-
-for i, key in enumerate(feature_keys):
-
-    if i % 3 == 0:
-        features[key] = col1.number_input(
-            key,
-            value=float(features[key])
-        )
-
-    elif i % 3 == 1:
-        features[key] = col2.number_input(
-            key,
-            value=float(features[key])
-        )
-
-    else:
-        features[key] = col3.number_input(
-            key,
-            value=float(features[key])
-        )
-# =========================================================
-# DISEASE RISK PREDICTIONS
-# =========================================================
-
-# =========================================================
-# DISEASE DATABASE
-# =========================================================
 
 disease_labels = {
 
@@ -622,10 +519,6 @@ disease_labels = {
     "Cognitive Impairment in Children": ['PM2.5', 'NO2'],
     "Reduced Lung Function in Children": ['PM2.5', 'NO2', 'O3']
 }
-
-# =========================================================
-# EFFECTS
-# =========================================================
 
 disease_effects = {
 
@@ -663,10 +556,6 @@ disease_effects = {
     "Impaired lung growth and breathing efficiency caused by polluted environments."
 }
 
-# =========================================================
-# PRECAUTIONS
-# =========================================================
-
 disease_precautions = {
 
     "Arrhythmia":
@@ -703,83 +592,6 @@ disease_precautions = {
     "Use air purifiers indoors and avoid outdoor activities during high AQI."
 }
 
-# =========================================================
-# SECTION TITLE
-# =========================================================
-
-st.markdown(
-    """
-    <div class="section-title" style="margin-top:40px;">
-        🩺 Health Risk Analysis
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# =========================================================
-# CSS
-# =========================================================
-st.markdown("""
-<style>
-
-.disease-card {
-    background-color: white;
-    border-radius: 22px;
-    padding: 24px;
-    margin-bottom: 22px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 24px rgba(15,23,42,0.06);
-}
-
-.disease-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-}
-
-.disease-name {
-    font-size: 24px;
-    font-weight: 800;
-    color: #0f172a;
-}
-
-.risk-high {
-    background-color: #fee2e2;
-    color: #dc2626;
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-weight: 700;
-}
-
-.risk-low {
-    background-color: #dcfce7;
-    color: #16a34a;
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-weight: 700;
-}
-
-.info-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #0f172a;
-    margin-top: 12px;
-}
-
-.info-text {
-    color: #475569;
-    line-height: 1.7;
-    margin-top: 6px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# =========================================================
-# RENDER DISEASES
-# =========================================================
-
 for disease, feats in disease_labels.items():
 
     try:
@@ -804,68 +616,110 @@ for disease, feats in disease_labels.items():
 
         prediction = result.get("prediction", 0)
 
-        risk = (
-            "HIGH RISK"
+        risk_text = (
+            "⚠️ HIGH RISK"
             if prediction == 1
-            else "LOW RISK"
+            else "✅ LOW RISK"
         )
 
-        risk_class = (
-            "risk-high"
+        risk_bg = (
+            "#fee2e2"
             if prediction == 1
-            else "risk-low"
+            else "#dcfce7"
         )
 
-        risk_icon = (
-            "⚠️"
+        risk_color = (
+            "#dc2626"
             if prediction == 1
-            else "✅"
+            else "#16a34a"
         )
 
-        card_html = f"""
-        <div class="disease-card">
+        st.markdown(f"""
+        <div style="
+            background:white;
+            border-radius:24px;
+            padding:28px;
+            margin-bottom:24px;
+            border:1px solid #e2e8f0;
+            box-shadow:0 10px 30px rgba(15,23,42,0.06);
+        ">
 
-            <div class="disease-header">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:20px;
+            ">
 
-                <div class="disease-name">
+                <div style="
+                    font-size:28px;
+                    font-weight:800;
+                    color:#0f172a;
+                ">
                     {disease}
                 </div>
 
-                <div class="{risk_class}">
-                    {risk_icon} {risk}
+                <div style="
+                    background:{risk_bg};
+                    color:{risk_color};
+                    padding:10px 18px;
+                    border-radius:999px;
+                    font-weight:700;
+                    font-size:14px;
+                ">
+                    {risk_text}
                 </div>
 
             </div>
 
-            <div class="info-title">
+            <div style="
+                font-size:17px;
+                font-weight:700;
+                color:#0f172a;
+                margin-top:14px;
+            ">
                 Health Effects
             </div>
 
-            <div class="info-text">
+            <div style="
+                color:#475569;
+                line-height:1.8;
+                margin-top:8px;
+                font-size:15px;
+            ">
                 {disease_effects.get(disease, "N/A")}
             </div>
 
-            <div class="info-title">
+            <div style="
+                font-size:17px;
+                font-weight:700;
+                color:#0f172a;
+                margin-top:18px;
+            ">
                 Precautions
             </div>
 
-            <div class="info-text">
+            <div style="
+                color:#475569;
+                line-height:1.8;
+                margin-top:8px;
+                font-size:15px;
+            ">
                 {disease_precautions.get(disease, "N/A")}
             </div>
 
         </div>
-        """
-
-        st.markdown(card_html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         with st.expander(f"🔍 Explainable AI Details — {disease}"):
 
             probability = result.get("probability")
 
             if probability is not None:
+
                 st.write(
                     "Prediction Confidence:",
-                    max(probability)
+                    float(max(probability))
                 )
 
             st.write(
@@ -885,4 +739,4 @@ for disease, feats in disease_labels.items():
 
     except Exception as e:
 
-        st.error(f"Error rendering {disease}: {e}")
+        st.error(f"{disease} Error: {e}")
