@@ -9,11 +9,11 @@ OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
 DEFAULT_LOCATION = (13.0827, 80.2707)  # Chennai
 
 st.set_page_config(page_title="Air Quality & Disease Risk Map", layout="wide")
+
 st.markdown("""
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Full-width overrides for Streamlit ── */
 .main .block-container {
     padding: 0 !important;
     max-width: 100% !important;
@@ -70,17 +70,13 @@ section[data-testid="stSidebar"] { display: none; }
     flex-shrink: 0;
 }
 .metric-card .m-label {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-size: 11px; color: #64748b;
+    font-weight: 600; letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 .metric-card .m-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: #0f172a;
-    line-height: 1.15;
+    font-size: 20px; font-weight: 700;
+    color: #0f172a; line-height: 1.15;
 }
 .metric-card .m-unit { font-size: 11px; color: #94a3b8; }
 .metric-card.aqi-good .m-value     { color: #009966; }
@@ -90,64 +86,35 @@ section[data-testid="stSidebar"] { display: none; }
 .metric-card.aqi-verypoor .m-value { color: #cc0033; }
 
 /* ── Page body ── */
-.page-body {
-    padding: 0 5% 40px;
-    width: 100%;
-}
+.page-body { padding: 0 5% 40px; width: 100%; }
 
-/* ── How-to expander ── */
+/* ── Expander ── */
 div[data-testid="stExpander"] {
     background: #fff !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 10px !important;
     margin-bottom: 14px !important;
 }
-div[data-testid="stExpander"] summary {
-    color: #0072B5 !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-}
 
-/* ── Search ── */
-div[data-testid="stTextInput"] input {
-    border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-    background: #fff !important;
-    font-size: 14px !important;
-    padding: 10px 14px !important;
-}
-
-/* ── Panel cards ── */
-.panel {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    overflow: hidden;
-    width: 100%;
-}
-.panel-head {
-    padding: 12px 18px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 13px;
-    font-weight: 600;
-    color: #0072B5;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-/* ── Fetch button ── */
+/* ── Buttons ── */
 .stButton > button {
     background: #0072B5 !important;
     color: #fff !important;
     font-weight: 700 !important;
     border-radius: 10px !important;
     border: none !important;
-    width: 100%;
-    padding: 11px 0 !important;
+    padding: 11px 24px !important;
     font-size: 14px !important;
+    width: 100% !important;
 }
 .stButton > button:hover { background: #005a91 !important; }
+
+/* ── AQI text ── */
+.aqi-good     { color: #009966; font-weight: 700; }
+.aqi-fair     { color: #1e90ff; font-weight: 700; }
+.aqi-moderate { color: #c9a800; font-weight: 700; }
+.aqi-poor     { color: #ff9933; font-weight: 700; }
+.aqi-verypoor { color: #cc0033; font-weight: 700; }
 
 /* ── Risk badges ── */
 .risk-badge {
@@ -161,13 +128,6 @@ div[data-testid="stTextInput"] input {
 }
 .risk-high { background: #fde8e8; color: #b91c1c; border: 1px solid #fca5a5; }
 .risk-low  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-
-/* ── AQI text ── */
-.aqi-good     { color: #009966; font-weight: 700; }
-.aqi-fair     { color: #1e90ff; font-weight: 700; }
-.aqi-moderate { color: #c9a800; font-weight: 700; }
-.aqi-poor     { color: #ff9933; font-weight: 700; }
-.aqi-verypoor { color: #cc0033; font-weight: 700; }
 
 /* ── Results panel ── */
 .results-wrap {
@@ -187,15 +147,6 @@ div[data-testid="stTextInput"] input {
 }
 .results-body { padding: 18px 20px; }
 
-/* ── Empty state ── */
-.empty-state {
-    text-align: center;
-    padding: 40px 16px;
-    color: #94a3b8;
-}
-.empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
-.empty-state p { font-size: 13px; line-height: 1.6; }
-
 /* ── Disease rows ── */
 .disease-row {
     padding: 12px 0;
@@ -214,6 +165,23 @@ div[data-testid="stTextInput"] input {
     line-height: 1.6;
 }
 
+/* ── Pollutant panel ── */
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 12px;
+}
+.panel-head {
+    padding: 12px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0072B5;
+}
+
 /* ── Footer ── */
 .footer-sub {
     text-align: right;
@@ -223,25 +191,14 @@ div[data-testid="stTextInput"] input {
     padding-bottom: 20px;
 }
 
-/* ── Streamlit column gap fix ── */
-div[data-testid="stHorizontalBlock"] {
-    gap: 1.5rem;
-    align-items: stretch;
+/* ── Search input ── */
+div[data-testid="stTextInput"] input {
+    border-radius: 10px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #fff !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
 }
-/* ── Fix button column widths ── */
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
-    min-width: 0;
-    padding: 0 !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] .stButton > button {
-    width: 100% !important;
-    white-space: nowrap;
-}
-/* ── Remove column internal padding ── */
-div[data-testid="stColumn"] {
-    padding: 0 !important;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -267,8 +224,8 @@ def extract_features(air_data, weather_data):
          'Temperature':25.0,'Humidity':50.0,'Wind Speed':2.0,'Pressure':1013.0}
     if air_data and "list" in air_data and air_data["list"]:
         c = air_data["list"][0]["components"]
-        for k,a in [('PM2.5','pm2_5'),('PM10','pm10'),('NO2','no2'),
-                    ('SO2','so2'),('CO','co'),('O3','o3'),('NH3','nh3'),('NO','no')]:
+        for k, a in [('PM2.5','pm2_5'),('PM10','pm10'),('NO2','no2'),
+                     ('SO2','so2'),('CO','co'),('O3','o3'),('NH3','nh3'),('NO','no')]:
             f[k] = c.get(a, f[k])
     if weather_data:
         m = weather_data.get("main", {})
@@ -347,8 +304,8 @@ if 'marker' not in st.session_state:
     st.session_state.marker = DEFAULT_LOCATION
 if 'fetched_features' not in st.session_state:
     st.session_state.fetched_features = None
-
-lat, lon = st.session_state.marker
+if 'run_prediction' not in st.session_state:
+    st.session_state.run_prediction = False
 
 # ═══════════════════════════════════
 # HERO
@@ -367,7 +324,7 @@ fd = st.session_state.fetched_features
 pm25 = f"{fd['PM2.5']:.1f}" if fd else "—"
 pm10 = f"{fd['PM10']:.1f}"  if fd else "—"
 no2  = f"{fd['NO2']:.1f}"   if fd else "—"
-aqi_val_str    = "—"
+aqi_val_str = "—"
 aqi_card_class = ""
 if fd:
     aqi_inp = [fd[k] for k in ['PM2.5','PM10','NO2','SO2','CO','O3'] if k in fd]
@@ -382,31 +339,23 @@ st.markdown(f"""
 <div class="metric-row">
   <div class="metric-card">
     <div class="m-icon">💨</div>
-    <div>
-      <div class="m-label">PM2.5</div>
-      <div class="m-value">{pm25} <span class="m-unit">μg/m³</span></div>
-    </div>
+    <div><div class="m-label">PM2.5</div>
+    <div class="m-value">{pm25} <span class="m-unit">μg/m³</span></div></div>
   </div>
   <div class="metric-card">
     <div class="m-icon">🌫️</div>
-    <div>
-      <div class="m-label">PM10</div>
-      <div class="m-value">{pm10} <span class="m-unit">μg/m³</span></div>
-    </div>
+    <div><div class="m-label">PM10</div>
+    <div class="m-value">{pm10} <span class="m-unit">μg/m³</span></div></div>
   </div>
   <div class="metric-card">
     <div class="m-icon">⚗️</div>
-    <div>
-      <div class="m-label">NO2</div>
-      <div class="m-value">{no2} <span class="m-unit">μg/m³</span></div>
-    </div>
+    <div><div class="m-label">NO2</div>
+    <div class="m-value">{no2} <span class="m-unit">μg/m³</span></div></div>
   </div>
   <div class="metric-card {aqi_card_class}">
     <div class="m-icon">📊</div>
-    <div>
-      <div class="m-label">AQI Index</div>
-      <div class="m-value">{aqi_val_str}</div>
-    </div>
+    <div><div class="m-label">AQI Index</div>
+    <div class="m-value">{aqi_val_str}</div></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -416,21 +365,20 @@ st.markdown(f"""
 # ═══════════════════════════════════
 st.markdown('<div class="page-body">', unsafe_allow_html=True)
 
-# How-to — now clearly visible on white bg
 with st.expander("ℹ️  How to use this tool"):
     st.markdown("""
     1. Type a city name and click **Search**, or click anywhere on the map to select a location.
-    2. The metric cards at the top update with live PM2.5, PM10, NO2, and AQI data.
-    3. Click **Fetch Data & Predict** to run the full disease risk analysis.
+    2. Click **Fetch Data & Predict** to run the full disease risk analysis.
+    3. The metric cards at the top update with live PM2.5, PM10, NO2, and AQI data.
     """)
 
-# Search row
-sc, bc = st.columns([4, 1])
+# ── Search row ──
+sc, bc = st.columns([5, 1])
 with sc:
     search_query = st.text_input("", "Chennai", placeholder="Search for a city or location…",
                                  label_visibility="collapsed", key="searchbar")
 with bc:
-    search_btn = st.button("🔍  Search", key="searchbtn")
+    search_btn = st.button("🔍 Search", key="searchbtn")
 
 if search_btn and search_query:
     geo_url  = f"http://api.openweathermap.org/geo/1.0/direct?q={search_query}&limit=1&appid={OPENWEATHER_API_KEY}"
@@ -446,81 +394,70 @@ if search_btn and search_query:
 
 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-# ── Map + right panel ────────────────────────────
-map_col, right_col = st.columns([3, 2])
+# ── Map (full width like original) ──
+st.markdown("<div class='panel'><div class='panel-head'>🗺️ Map — click to select a location</div>", unsafe_allow_html=True)
+m = folium.Map(location=st.session_state.map_center, zoom_start=7, control_scale=True)
+folium.Marker(
+    location=st.session_state.marker,
+    icon=folium.Icon(color='red', icon='info-sign'),
+    popup="Selected Location"
+).add_to(m)
+map_data = st_folium(m, width="100%", height=500, returned_objects=["last_clicked"])
+st.markdown("</div>", unsafe_allow_html=True)
 
-with map_col:
-    st.markdown("<div class='panel'><div class='panel-head'>🗺️ Map — click to select a location</div>", unsafe_allow_html=True)
-    m = folium.Map(location=st.session_state.map_center, zoom_start=7, control_scale=True)
-    folium.Marker(
-        location=st.session_state.marker,
-        icon=folium.Icon(color='red', icon='info-sign'),
-        popup="Selected Location"
-    ).add_to(m)
-    map_data = st_folium(m, width="100%", height=400, returned_objects=["last_clicked"])
-    st.markdown("</div>", unsafe_allow_html=True)
+if map_data and map_data.get("last_clicked"):
+    lat = map_data["last_clicked"]["lat"]
+    lon = map_data["last_clicked"]["lng"]
+    st.session_state.marker     = (lat, lon)
+    st.session_state.map_center = (lat, lon)
+else:
+    lat, lon = st.session_state.marker
 
-    if map_data and map_data.get("last_clicked"):
-        lat = map_data["last_clicked"]["lat"]
-        lon = map_data["last_clicked"]["lng"]
-        st.session_state.marker     = (lat, lon)
-        st.session_state.map_center = (lat, lon)
-    else:
-        lat, lon = st.session_state.marker
+st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-with right_col:
-    # Pollutants detail card
-    st.markdown("<div class='panel'><div class='panel-head'>💨 All pollutants & weather</div>", unsafe_allow_html=True)
-    if st.session_state.fetched_features:
-        rows = [
-            ("SO2",        f"{fd['SO2']:.1f} μg/m³"),
-            ("CO",         f"{fd['CO']:.2f} mg/m³"),
-            ("O3",         f"{fd['O3']:.1f} μg/m³"),
-            ("NH3",        f"{fd['NH3']:.1f} μg/m³"),
-            ("Temperature",f"{fd['Temperature']:.1f} °C"),
-            ("Humidity",   f"{fd['Humidity']:.0f}%"),
-            ("Wind Speed", f"{fd['Wind Speed']:.1f} m/s"),
-            ("Pressure",   f"{fd['Pressure']:.0f} hPa"),
-        ]
-        for label, val in rows:
-            st.markdown(f"""
-            <div style='display:flex;justify-content:space-between;align-items:center;
-                        padding:9px 18px;border-bottom:1px solid #f1f5f9;font-size:13px;'>
-                <span style='color:#64748b;'>{label}</span>
-                <span style='font-weight:600;color:#0f172a;'>{val}</span>
-            </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div style='padding:24px 18px;color:#94a3b8;font-size:13px;text-align:center;'>
-            Fetch data to see pollutant details
-        </div>""", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+# ── Fetch button (full width, below map) ──
 fetch_btn = st.button("⟳  Fetch Data & Predict", key="fetchbtn")
 
+# ── Pollutants panel (shown after fetch) ──
+if st.session_state.fetched_features:
+    fd = st.session_state.fetched_features
+    st.markdown("<div class='panel' style='margin-top:12px;'><div class='panel-head'>💨 All pollutants & weather</div>", unsafe_allow_html=True)
+    pcols = st.columns(4)
+    items = [
+        ("SO2", f"{fd['SO2']:.1f} μg/m³"),
+        ("CO",  f"{fd['CO']:.2f} mg/m³"),
+        ("O3",  f"{fd['O3']:.1f} μg/m³"),
+        ("NH3", f"{fd['NH3']:.1f} μg/m³"),
+        ("🌡 Temp", f"{fd['Temperature']:.1f} °C"),
+        ("💧 Humidity", f"{fd['Humidity']:.0f}%"),
+        ("🌬 Wind", f"{fd['Wind Speed']:.1f} m/s"),
+        ("⏱ Pressure", f"{fd['Pressure']:.0f} hPa"),
+    ]
+    for i, (label, val) in enumerate(items):
+        with pcols[i % 4]:
+            st.markdown(f"""
+            <div style='background:#f8fafc;border-radius:8px;padding:10px 14px;margin-bottom:8px;'>
+                <div style='font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;'>{label}</div>
+                <div style='font-size:16px;font-weight:700;color:#0f172a;'>{val}</div>
+            </div>""", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 # ═══════════════════════════════════
-# RESULTS
+# RESULTS — same logic as original, persists via session state
 # ═══════════════════════════════════
+if fetch_btn:
+    with st.spinner("Fetching live data and running predictions…"):
+        air_data, weather_data = fetch_openweather_data(lat, lon)
+        features = extract_features(air_data, weather_data)
+        st.session_state.fetched_features = features
+        st.session_state.run_prediction   = True
+
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 st.markdown("<div class='results-wrap'><div class='results-head'>📊 Prediction results</div><div class='results-body'>", unsafe_allow_html=True)
 
-if fetch_btn or (map_data and map_data.get("last_clicked")):
-    st.session_state.run_prediction = True
+if st.session_state.run_prediction and st.session_state.fetched_features:
+    features = st.session_state.fetched_features
 
-run_prediction = st.session_state.get("run_prediction", False)
-
-if run_prediction:
-    if fetch_btn or (map_data and map_data.get("last_clicked")):
-        with st.spinner("Fetching live data and running predictions…"):
-            air_data, weather_data = fetch_openweather_data(lat, lon)
-            features = extract_features(air_data, weather_data)
-            st.session_state.fetched_features = features
-
-    features = st.session_state.get("fetched_features")
-    if not features:
-        st.warning("No data fetched yet. Click Fetch Data & Predict.")
-        st.stop()
-    
     st.markdown("#### Editable features")
     ec1, ec2 = st.columns(2)
     for i, k in enumerate(features.keys()):
@@ -577,16 +514,16 @@ if run_prediction:
                         st.write(f"  · {rec}")
 else:
     st.markdown("""
-    <div class='empty-state'>
-        <div class='empty-icon'>🗺️</div>
-        <p>Search for a location or click the map,<br>
+    <div style='text-align:center;padding:40px 16px;color:#94a3b8;'>
+        <div style='font-size:36px;margin-bottom:10px;'>🗺️</div>
+        <p style='font-size:13px;line-height:1.6;'>Search for a location or click the map,<br>
         then hit <strong>Fetch Data &amp; Predict</strong> to see results.</p>
     </div>""", unsafe_allow_html=True)
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════
-# FOOTER (unchanged)
+# FOOTER
 # ═══════════════════════════════════
 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 fc1, fc2 = st.columns([4, 1])
