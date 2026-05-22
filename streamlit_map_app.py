@@ -231,11 +231,17 @@ div[data-testid="stHorizontalBlock"] {
 /* ── Fix button column widths ── */
 div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
     min-width: 0;
+    padding: 0 !important;
 }
 div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] .stButton > button {
     width: 100% !important;
     white-space: nowrap;
 }
+/* ── Remove column internal padding ── */
+div[data-testid="stColumn"] {
+    padding: 0 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -440,6 +446,9 @@ if search_btn and search_query:
 
 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
+st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+fetch_btn = st.button("⟳  Fetch Data & Predict", key="fetchbtn")
+
 # ── Map + right panel ────────────────────────────
 map_col, right_col = st.columns([3, 2])
 
@@ -489,9 +498,6 @@ with right_col:
             Fetch data to see pollutant details
         </div>""", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-    fetch_btn = st.button("⟳  Fetch Data & Predict", key="fetchbtn")
 
 # ═══════════════════════════════════
 # RESULTS
