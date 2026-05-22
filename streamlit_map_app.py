@@ -3,12 +3,10 @@ import folium
 from streamlit_folium import st_folium
 import requests
 from models import predict_disease_with_explanation, predict_aqi
-from dotenv import load_dotenv
 import os
-
-load_dotenv()
 # --- CONFIG ---
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
+OPENWEATHER_API_KEY = st.secrets["OPENWEATHER_API_KEY"]
 DEFAULT_LOCATION = (13.0827, 80.2707)  # Chennai
 
 st.set_page_config(page_title="Air Quality & Disease Risk Map", layout="wide")
