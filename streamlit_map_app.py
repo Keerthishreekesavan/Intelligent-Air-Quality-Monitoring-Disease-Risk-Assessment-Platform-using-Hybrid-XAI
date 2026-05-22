@@ -296,7 +296,6 @@ disease_precautions = {
     "Diabetes":"Healthy diet, exercise regularly, monitor blood sugar.",
     "Eye & Skin Irritation":"Wear protective eyewear, avoid rubbing eyes, use gentle skin products.",
 }
-
 # --- Session state ---
 if 'map_center' not in st.session_state:
     st.session_state.map_center = DEFAULT_LOCATION
@@ -306,6 +305,21 @@ if 'fetched_features' not in st.session_state:
     st.session_state.fetched_features = None
 if 'run_prediction' not in st.session_state:
     st.session_state.run_prediction = False
+if 'do_fetch' not in st.session_state:
+    st.session_state.do_fetch = False
+if 'fetch_lat' not in st.session_state:
+    st.session_state.fetch_lat = DEFAULT_LOCATION[0]
+if 'fetch_lon' not in st.session_state:
+    st.session_state.fetch_lon = DEFAULT_LOCATION[1]
+
+# RUN FETCH AT TOP
+if st.session_state.do_fetch:
+    air_data, weather_data = fetch_openweather_data(
+        st.session_state.fetch_lat, st.session_state.fetch_lon)
+    features = extract_features(air_data, weather_data)
+    st.session_state.fetched_features = features
+    st.session_state.run_prediction   = True
+    st.session_state.do_fetch         = False
 
 # ═══════════════════════════════════
 # HERO
@@ -446,14 +460,12 @@ if st.session_state.fetched_features:
 # RESULTS — same logic as original, persists via session state
 # ═══════════════════════════════════
 if fetch_btn:
-    with st.spinner("Fetching live data and running predictions…"):
-        air_data, weather_data = fetch_openweather_data(lat, lon)
-        features = extract_features(air_data, weather_data)
-        st.session_state.fetched_features = features
-        st.session_state.run_prediction   = True
-
+    st.session_state.do_fetch  = True
+    st.session_state.fetch_lat = lat
+    st.session_state.fetch_lon = lon
+    st.rerun()
+    
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-st.markdown("<div class='results-wrap'><div class='results-head'>📊 Prediction results</div><div class='results-body'>", unsafe_allow_html=True)
 
 if st.session_state.run_prediction and st.session_state.fetched_features:
     features = st.session_state.fetched_features
