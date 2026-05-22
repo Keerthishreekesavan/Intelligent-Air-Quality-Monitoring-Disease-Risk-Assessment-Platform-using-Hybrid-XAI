@@ -826,43 +826,42 @@ for disease, feats in disease_labels.items():
             else "✅"
         )
 
-        st.markdown(
-            f"""
-            <div class="disease-card">
+        card_html = f"""
+        <div class="disease-card">
 
-                <div class="disease-header">
+            <div class="disease-header">
 
-                    <div class="disease-name">
-                        {disease}
-                    </div>
-
-                    <div class="{risk_class}">
-                        {risk_icon} {risk}
-                    </div>
-
+                <div class="disease-name">
+                    {disease}
                 </div>
 
-                <div class="info-title">
-                    Health Effects
-                </div>
-
-                <div class="info-text">
-                    {disease_effects.get(disease, "N/A")}
-                </div>
-
-                <div class="info-title">
-                    Precautions
-                </div>
-
-                <div class="info-text">
-                    {disease_precautions.get(disease, "N/A")}
+                <div class="{risk_class}">
+                    {risk_icon} {risk}
                 </div>
 
             </div>
-            """,
-            unsafe_allow_html=True
-        )
 
+            <div class="info-title">
+                Health Effects
+            </div>
+
+            <div class="info-text">
+                {disease_effects.get(disease, "N/A")}
+            </div>
+
+            <div class="info-title">
+                Precautions
+            </div>
+
+            <div class="info-text">
+                {disease_precautions.get(disease, "N/A")}
+            </div>
+
+        </div>
+        """
+
+        st.markdown(card_html, unsafe_allow_html=True)
+        
         with st.expander(f"🔍 Explainable AI Details — {disease}"):
 
             probability = result.get("probability")
