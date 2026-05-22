@@ -516,6 +516,101 @@ for col, item in zip([c1, c2, c3, c4], cards):
             label=item[0],
             value=item[1]
         )
+# =========================
+# ENVIRONMENTAL CONDITIONS
+# =========================
+
+
+st.markdown("""
+<div class="section-title">
+    🌤 Environmental Conditions
+</div>
+""", unsafe_allow_html=True)
+
+# SMALLER + CLEANER FEATURE BOXES
+feature_style = """
+<style>
+.feature-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+    transition: 0.3s ease;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.feature-box:hover {
+    transform: translateY(-2px);
+    border: 1px solid rgba(0,255,255,0.25);
+}
+
+.feature-label {
+    color: #9fb3c8;
+    font-size: 13px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.feature-value {
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.feature-unit {
+    color: #6ee7ff;
+    font-size: 13px;
+    margin-left: 5px;
+}
+</style>
+"""
+
+st.markdown(feature_style, unsafe_allow_html=True)
+
+# ENVIRONMENT CARDS
+env1, env2, env3, env4 = st.columns(4)
+
+with env1:
+    st.markdown(f"""
+    <div class="feature-box">
+        <div class="feature-label">🌡 Temperature</div>
+        <div class="feature-value">{features['Temperature']:.1f}
+            <span class="feature-unit">°C</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with env2:
+    st.markdown(f"""
+    <div class="feature-box">
+        <div class="feature-label">💧 Humidity</div>
+        <div class="feature-value">{features['Humidity']:.0f}
+            <span class="feature-unit">%</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with env3:
+    st.markdown(f"""
+    <div class="feature-box">
+        <div class="feature-label">🌬 Wind Speed</div>
+        <div class="feature-value">{features['Wind Speed']:.1f}
+            <span class="feature-unit">m/s</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with env4:
+    st.markdown(f"""
+    <div class="feature-box">
+        <div class="feature-label">🧭 Pressure</div>
+        <div class="feature-value">{features['Pressure']:.0f}
+            <span class="feature-unit">hPa</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================================================
 # EDITABLE FEATURES
@@ -557,26 +652,74 @@ for i, key in enumerate(feature_keys):
 # DISEASE PREDICTIONS
 # =========================================================
 
-disease_labels = {
-    'Asthma': ['PM2.5', 'PM10', 'NO2'],
-    'COPD': ['PM2.5', 'PM10', 'SO2'],
-    'Lung Cancer': ['PM2.5', 'PM10', 'NO2', 'O3'],
-    'Pneumonia & Bronchitis': ['PM2.5', 'PM10', 'SO2', 'CO'],
-    'Heart Attacks': ['PM2.5', 'PM10', 'CO'],
-    'Hypertension': ['NO2', 'SO2', 'CO'],
-}
-
-st.markdown("<br>", unsafe_allow_html=True)
-
 st.markdown("""
-<div class="section-title">
-🩺 Disease Risk Predictions
+<div class="section-title" style="margin-top:35px;">
+    🩺 Disease Risk Analysis
 </div>
 """, unsafe_allow_html=True)
 
+# REMOVE THOSE UGLY WHITE OVAL SEPARATORS
+st.markdown("""
+<style>
+hr {
+    display: none !important;
+}
+
+[data-testid="stExpander"] {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.disease-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.14);
+}
+
+.disease-title {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.risk-high {
+    background: rgba(255, 77, 77, 0.18);
+    color: #ff6b6b;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.risk-low {
+    background: rgba(0, 255, 170, 0.16);
+    color: #00ffaa;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.effect-text {
+    color: #c7d5e0;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 12px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# SHOW EVERY DISEASE
 for disease, feats in disease_labels.items():
 
-    disease_input = [features[f] for f in feats]
+    disease_input = [features[f] for f in feats if f in features]
 
     result = predict_disease_with_explanation(
         disease_input,
@@ -587,53 +730,39 @@ for disease, feats in disease_labels.items():
 
         risk = (
             "HIGH RISK"
-            if result["prediction"] == 1
+            if result['prediction'] == 1
             else "LOW RISK"
         )
 
-        st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+        risk_class = (
+            "risk-high"
+            if risk == "HIGH RISK"
+            else "risk-low"
+        )
 
-        colA, colB = st.columns([5, 1])
+        st.markdown(f"""
+        <div class="disease-card">
 
-        with colA:
+            <div class="disease-title">
+                {disease}
+            </div>
 
-            st.subheader(disease)
+            <div class="{risk_class}">
+                {risk}
+            </div>
 
-            st.caption(
-                "AI-driven respiratory health risk analysis"
-            )
+            <div class="effect-text">
+                <b>Health Effects:</b><br>
+                {disease_effects.get(disease, "N/A")}
+            </div>
 
-        with colB:
+            <div class="effect-text">
+                <b>Precautions:</b><br>
+                {disease_precautions.get(disease, "N/A")}
+            </div>
 
-            if risk == "HIGH RISK":
-                st.error(risk)
-
-            else:
-                st.success(risk)
-
-        with st.expander("🔍 Explainable AI Details"):
-
-            st.write(
-                "Prediction Confidence:",
-                round(max(result["probability"]), 4)
-            )
-
-            st.write(
-                "Model Accuracy:",
-                result["accuracy"]
-            )
-
-            st.write(
-                "LIME Explanation:",
-                result.get("lime_explanation")
-            )
-
-            st.write(
-                "SHAP Explanation:",
-                result.get("shap_explanation")
-            )
-
-        st.markdown("</div>", unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
 # =========================================================
 # FOOTER
